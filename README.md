@@ -27,11 +27,12 @@ An interactive simulator for the **2026 FIFA World Cup** (USA/Canada/Mexico), fe
 
 | Tab | Description |
 |-----|-------------|
-| 📅 **Schedule** | 72 group-stage matches with Beijing time (CST), venue & city info |
+| 📅 **Schedule** | 72 group-stage matches with Beijing time (CST), venue & city info, ⭐ match favorites, 📡 live result sync |
 | 🏆 **Group Standings** | 12 groups × 4 teams, live standings with FIFA tiebreaker rules |
 | 🌿 **Knockout Bracket** | 9-column left/right half layout — R32 → R16 → QF → SF → Final → Champion |
 | 📊 **AI Statistics** | Monte Carlo batch simulation (up to 1000 runs) — champion odds, dark horse tracker, upset statistics |
 | 🔮 **Team Journey** | Pick any team → deep-dive simulation with group analysis, round-by-round path, and AI-generated insights |
+| 📋 **Squads** | 48-team roster browser — key players with position, shirt number, and club info |
 | 🏟️ **Venues** | 16 stadiums across USA (11), Canada (2), Mexico (3) |
 | ℹ️ **Format Rules** | 48-team expanded format, third-place ranking tiebreakers |
 
@@ -43,6 +44,26 @@ An interactive simulator for the **2026 FIFA World Cup** (USA/Canada/Mexico), fe
 - **formBoost**: Performance modifier based on recent form and squad quality (e.g., Norway +15, Japan +10)
 - **Penalty shootout**: Rank-weighted probability for knockout draws
 - **Batch simulation**: Runs N full tournaments (up to 1000) with per-team tracking across all stages
+
+### ⭐ Match Favorites & Live Sync
+
+- **Follow matches**: Star any match to add it to your watchlist, filter to show only followed matches
+- **Persistent**: Follow list saved to localStorage, survives page refresh
+- **Live result sync**: One-click sync from thesportsdb.com API to pull real match scores (CORS-friendly, no API key required)
+
+### 📋 Squad Browser
+
+- **48 teams** with 8–12 key players each (~450 total)
+- Player info: name, position (GK/DF/MF/FW), shirt number, current club
+- Color-coded position groups: Goalkeeper (yellow) / Defender (blue) / Midfielder (green) / Forward (red)
+- Data sourced from FIFA.com, ESPN, thesportsdb, Wikipedia
+
+### 🔮 Team Journey Deep Dive
+
+1. Runs Monte Carlo simulation tracking the selected team across every round
+2. Analyzes win rate and typical score against each group opponent
+3. Shows round-by-round reach rate, top 3 likely opponents, and win probability
+4. Auto-generates **4–5 AI insights** (positive 🟢 / risk 🔴 / key moments 🟡)
 
 ### 🚀 Quick Start
 
@@ -59,21 +80,23 @@ npm run build
 
 ### 🏗️ Architecture
 
-Single-file SPA (`2026.tsx`, ~2200 lines) with no external state management.
+Single-file SPA (`2026.tsx`, ~2600 lines) with no external state management.
 
 ```
 2026.tsx
-├── Data Layer (teams, groups, matches, venues)
+├── Data Layer (teams, groups, matches, venues, squad rosters)
 ├── Simulation Engine (Poisson + Monte Carlo)
 ├── React State & Computed Data (useMemo chains)
 ├── Batch Simulation Engine (formBoost + dark horse tracking)
-├── Team Journey Engine (per-team deep analysis)
-└── JSX Rendering (7 tabs + KnockoutMatchCard component)
+├── Team Journey Engine (per-team deep analysis + AI insights)
+├── Live Sync Engine (thesportsdb.com real-time results)
+└── JSX Rendering (8 tabs + KnockoutMatchCard component)
 ```
 
 ### 📊 Key Data
 
-- **48 teams** with FIFA ranking, region, flag, and formBoost
+- **48 teams** with FIFA ranking, region, flag, formBoost, and squad rosters
+- **~450 players** across 48 teams with position, number, and club
 - **72 group-stage matches** across 12 groups (June 12–27, 2026)
 - **32-team knockout** following official FIFA 2026 cross-group pairing
 - **16 venues** across 3 host nations
@@ -90,11 +113,12 @@ Single-file SPA (`2026.tsx`, ~2200 lines) with no external state management.
 
 | 页签 | 说明 |
 |------|------|
-| 📅 **北京时间日程表** | 72场小组赛完整赛程，已转换为北京时间(CST) |
+| 📅 **北京时间日程表** | 72场小组赛完整赛程，星期标注，关注收藏，实时赛果同步 |
 | 🏆 **12组积分模拟** | 实时积分榜，支持手动输入比分或一键模拟，完整FIFA排名规则 |
 | 🌿 **32强树状模拟** | 9列左右半区布局，从32强到冠军一目了然 |
 | 📊 **AI 大数据统计预测** | 蒙特卡洛批量仿真（最高1000次），夺冠率/黑马榜/冷门统计 |
 | 🔮 **球队之旅** | 选择任意球队 → 深度推演世界杯之路，含小组分析、逐轮路径、AI洞察 |
+| 📋 **球队阵容** | 48队核心球员浏览，含位置、号码、俱乐部，按位置颜色分组展示 |
 | 🏟️ **场馆指南** | 16座场馆（美国11 + 加拿大2 + 墨西哥3）详细信息 |
 | ℹ️ **赛制规则** | 48队扩军新规、第三名横向排名晋级细则 |
 
@@ -106,6 +130,19 @@ Single-file SPA (`2026.tsx`, ~2200 lines) with no external state management.
 - **formBoost 状态修正**: 基于近期表现和阵容质量的实力调整（如挪威+15、日本+10、厄瓜多尔+10）
 - **点球大战**: 排名加权概率决定淘汰赛平局胜负
 - **批量仿真**: 运行 N 次完整世界杯（最高1000次），追踪每支球队在每一轮的晋级/淘汰数据
+
+### ⭐ 关注收藏 & 实时赛果同步
+
+- **关注比赛**: 点击星标收藏感兴趣的比赛，支持「只看关注」筛选
+- **本地持久化**: 关注列表自动保存到 localStorage，刷新不丢失
+- **实时赛果同步**: 一键从 thesportsdb.com 获取真实比赛结果，内置中英文队名自动匹配
+
+### 📋 球队阵容浏览
+
+- **48支球队** 各收录8-12名核心球员（约450人）
+- 球员信息：姓名、位置(GK/DF/MF/FW)、号码、所属俱乐部
+- 按位置分组展示，颜色编码：门将(黄) / 后卫(蓝) / 中场(绿) / 前锋(红)
+- 数据来源：FIFA.com、ESPN、thesportsdb、维基百科等全网搜索汇总
 
 ### 🔮 球队之旅特色
 
@@ -131,21 +168,23 @@ npm run build
 
 ### 🏗️ 技术架构
 
-单文件 SPA（`2026.tsx`，约2200行），零外部状态管理库。
+单文件 SPA（`2026.tsx`，约2600行），零外部状态管理库。
 
 ```
 2026.tsx
-├── 数据层（48支球队、12个小组、72场比赛、16座场馆）
+├── 数据层（48支球队、~450名球员、12个小组、72场比赛、16座场馆）
 ├── 仿真引擎（泊松分布 + 蒙特卡洛）
 ├── React 状态与计算数据（useMemo 链式计算）
 ├── 批量仿真引擎（formBoost + 黑马追踪）
-├── 球队之旅引擎（单队深度分析 + 洞察生成）
-└── JSX 渲染（7个页签 + KnockoutMatchCard 组件）
+├── 球队之旅引擎（单队深度分析 + AI洞察生成）
+├── 实时赛果引擎（thesportsdb.com API同步）
+└── JSX 渲染（8个页签 + KnockoutMatchCard 组件）
 ```
 
 ### 📊 核心数据
 
-- **48支球队**: FIFA排名、大区、国旗、formBoost状态修正
+- **48支球队**: FIFA排名、大区、国旗、formBoost状态修正、核心球员名单
+- **~450名球员**: 姓名、位置、号码、俱乐部
 - **72场小组赛**: 12组×6场，2026年6月12日–27日
 - **32强淘汰赛**: 遵循FIFA 2026官方跨组配对规则
 - **16座场馆**: 美国（11）+ 加拿大（2）+ 墨西哥（3）
