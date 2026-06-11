@@ -1875,7 +1875,7 @@ export default function App() {
                   >
                     <div className="flex justify-between items-center mb-3">
                       <span className="text-[11px] font-semibold text-teal-400 uppercase tracking-wider">
-                        📅 北京时间 {match.date}
+                        📅 北京时间 {match.date} {(() => { const d = new Date(match.date + 'T00:00:00+08:00'); return ['周日','周一','周二','周三','周四','周五','周六'][d.getDay()]; })()}
                       </span>
                       <div className="flex gap-1 items-center">
                         <button
