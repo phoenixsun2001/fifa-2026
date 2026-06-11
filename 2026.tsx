@@ -261,6 +261,123 @@ export default function App() {
   const [statsResults, setStatsResults] = useState(null);
   const [filterRegion, setFilterRegion] = useState('All');
 
+  // 关注收藏 & 只看关注筛选
+  const [followedMatches, setFollowedMatches] = useState(() => {
+    try { const saved = localStorage.getItem('fifa2026_followed'); return saved ? new Set(JSON.parse(saved)) : new Set(); }
+    catch { return new Set(); }
+  });
+  const [showFollowedOnly, setShowFollowedOnly] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState('');
+
+  const toggleFollow = (matchId) => {
+    setFollowedMatches(prev => {
+      const next = new Set(prev);
+      if (next.has(matchId)) next.delete(matchId); else next.add(matchId);
+      try { localStorage.setItem('fifa2026_followed', JSON.stringify([...next])); } catch {}
+      return next;
+    });
+  };
+
+  // ==================== 同步真实赛果 ====================
+  const handleSyncResults = async () => {
+    setIsSyncing(true);
+    setSyncMessage('🔄 正在从数据源获取赛果...');
+
+    try {
+      // 使用 thesportsdb.com 免费 CORS 友好 API
+      // World Cup 2026 league id: 4495 (FIFA World Cup)
+      const response = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4495&s=2026');
+      if (!response.ok) throw new Error(`API 返回 ${response.status}`);
+
+      const data = await response.json();
+      const events = data.events || [];
+
+      if (events.length === 0) {
+        setSyncMessage('ℹ️ 暂无已完成的比赛——赛事尚未开始或数据尚未更新');
+        setIsSyncing(false);
+        return;
+      }
+
+      // 构建 thesportsdb 队名 → 我们队名的映射（模糊匹配）
+      const nameMap = {};
+      Object.keys(teamMetadata).forEach(name => {
+        // 去掉空格、转小写，方便匹配
+        const key = name.toLowerCase().replace(/\s/g, '');
+        nameMap[key] = name;
+        // 也加入英文映射
+        const code = teamMetadata[name].code?.toLowerCase() || '';
+        if (code) nameMap[code] = name;
+      });
+      // 额外的英文→中文映射
+      const extraNames = {
+        'mexico': '墨西哥', 'southafrica': '南非', 'southkorea': '韩国', 'czechrepublic': '捷克',
+        'canada': '加拿大', 'bosniaandherzegovina': '波黑', 'qatar': '卡塔尔', 'switzerland': '瑞士',
+        'brazil': '巴西', 'morocco': '摩洛哥', 'haiti': '海地', 'scotland': '苏格兰',
+        'usa': '美国', 'unitedstates': '美国', 'paraguay': '巴拉圭', 'australia': '澳大利亚', 'turkey': '土耳其',
+        'germany': '德国', 'curacao': '库拉索', 'ivorycoast': '科特迪瓦', 'ecuador': '厄瓜多尔',
+        'netherlands': '荷兰', 'japan': '日本', 'sweden': '瑞典', 'tunisia': '突尼斯',
+        'belgium': '比利时', 'egypt': '埃及', 'iran': '伊朗', 'newzealand': '新西兰',
+        'spain': '西班牙', 'capeverde': '佛得角', 'saudiarabia': '沙特阿拉伯', 'uruguay': '乌拉圭',
+        'france': '法国', 'senegal': '塞内加尔', 'norway': '挪威', 'iraq': '伊拉克',
+        'argentina': '阿根廷', 'algeria': '阿尔及利亚', 'austria': '奥地利', 'jordan': '约旦',
+        'portugal': '葡萄牙', 'drcongo': '民主刚果', 'uzbekistan': '乌兹别克斯坦', 'colombia': '哥伦比亚',
+        'england': '英格兰', 'croatia': '克罗地亚', 'ghana': '加纳', 'panama': '巴拿马',
+      };
+      Object.keys(extraNames).forEach(k => { nameMap[k] = extraNames[k]; });
+
+      // 解析赛果并匹配到我们的比赛
+      let updatedCount = 0;
+      const matchMap = {};
+      matches.forEach(m => { matchMap[m.id] = m; });
+
+      events.forEach(evt => {
+        if (!evt.intHomeScore || !evt.intAwayScore) return; // 未完成的比赛
+        const homeKey = (evt.strHomeTeam || '').toLowerCase().replace(/\s/g, '');
+        const awayKey = (evt.strAwayTeam || '').toLowerCase().replace(/\s/g, '');
+        const homeName = nameMap[homeKey];
+        const awayName = nameMap[awayKey];
+        if (!homeName || !awayName) return;
+
+        // 在我们的比赛列表中找到匹配
+        const found = matches.find(m =>
+          (m.home === homeName && m.away === awayName) ||
+          (m.away === homeName && m.home === awayName)
+        );
+        if (found) {
+          const homeScore = found.home === homeName ? evt.intHomeScore : evt.intAwayScore;
+          const awayScore = found.away === awayName ? evt.intAwayScore : evt.intHomeScore;
+          if (found.homeScore !== String(homeScore) || found.awayScore !== String(awayScore)) {
+            setMatches(prev => prev.map(m => {
+              if (m.id === found.id) {
+                return { ...m, homeScore: String(homeScore), awayScore: String(awayScore) };
+              }
+              return m;
+            }));
+            updatedCount++;
+          }
+        }
+      });
+
+      if (updatedCount > 0) {
+        setSyncMessage(`✅ 同步成功！已更新 ${updatedCount} 场比赛的真实赛果`);
+      } else {
+        // 检查是否有已完成的比赛但分数已经是最新的
+        const finishedEvents = events.filter(e => e.intHomeScore && e.intAwayScore);
+        if (finishedEvents.length > 0) {
+          setSyncMessage(`✅ 数据已是最新（${finishedEvents.length} 场已完赛）`);
+        } else {
+          setSyncMessage('ℹ️ 暂无已完成的比赛——赛事尚未开始');
+        }
+      }
+    } catch (err) {
+      console.error('Sync error:', err);
+      setSyncMessage(`❌ 同步失败：${err.message}。请检查网络连接后重试`);
+    }
+
+    setIsSyncing(false);
+  };
+
   // 球队之旅模拟
   const [journeyTeam, setJourneyTeam] = useState('');
   const [journeyResult, setJourneyResult] = useState(null);
@@ -1277,13 +1394,14 @@ export default function App() {
       const matchesCountry = filterCountry === 'All' || match.country === filterCountry;
       const matchesGroup = filterGroup === 'All' || match.group === filterGroup;
       const searchLower = searchQuery.toLowerCase();
-      const matchesSearch = searchQuery === '' || 
+      const matchesSearch = searchQuery === '' ||
         match.home.toLowerCase().includes(searchLower) ||
         match.away.toLowerCase().includes(searchLower) ||
         match.city.toLowerCase().includes(searchLower);
-      return matchesCountry && matchesGroup && matchesSearch;
+      const matchesFollow = !showFollowedOnly || followedMatches.has(match.id);
+      return matchesCountry && matchesGroup && matchesSearch && matchesFollow;
     });
-  }, [matches, filterCountry, filterGroup, searchQuery]);
+  }, [matches, filterCountry, filterGroup, searchQuery, showFollowedOnly, followedMatches]);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased selection:bg-teal-500 selection:text-white">
@@ -1703,9 +1821,44 @@ export default function App() {
                 <span className="text-xs text-amber-400 font-medium bg-amber-500/10 px-2 py-1 rounded border border-amber-500/20">
                   ⏰ 已转换北京时间 (CST)
                 </span>
+
+                <button
+                  onClick={() => setShowFollowedOnly(!showFollowedOnly)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold transition-all border ${
+                    showFollowedOnly
+                      ? 'bg-amber-500/20 text-amber-400 border-amber-500/40'
+                      : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-amber-400'
+                  }`}
+                >
+                  {showFollowedOnly ? '⭐ 只看关注' : '☆ 只看关注'} <span className="text-[10px]">({followedMatches.size})</span>
+                </button>
+
+                <button
+                  onClick={handleSyncResults}
+                  disabled={isSyncing}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition-all border ${
+                    isSyncing
+                      ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'
+                      : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-slate-950'
+                  }`}
+                  title="从 thesportsdb.com 获取真实比赛结果"
+                >
+                  {isSyncing ? '🔄 同步中...' : '📡 同步真实赛果'}
+                </button>
               </div>
 
             </div>
+
+            {/* 同步状态消息 */}
+            {syncMessage && (
+              <div className={`px-4 py-2.5 rounded-xl text-xs font-medium border ${
+                syncMessage.startsWith('✅') ? 'bg-emerald-950/30 border-emerald-500/20 text-emerald-300' :
+                syncMessage.startsWith('❌') ? 'bg-rose-950/30 border-rose-500/20 text-rose-300' :
+                'bg-slate-900 border-slate-800 text-slate-400'
+              }`}>
+                {syncMessage}
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredMatches.map(match => {
@@ -1724,7 +1877,16 @@ export default function App() {
                       <span className="text-[11px] font-semibold text-teal-400 uppercase tracking-wider">
                         📅 北京时间 {match.date}
                       </span>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 items-center">
+                        <button
+                          onClick={() => toggleFollow(match.id)}
+                          className={`px-1.5 py-0.5 rounded text-xs transition-all ${
+                            followedMatches.has(match.id) ? 'text-amber-400 hover:text-amber-300' : 'text-slate-600 hover:text-amber-400'
+                          }`}
+                          title={followedMatches.has(match.id) ? '取消关注' : '关注比赛'}
+                        >
+                          {followedMatches.has(match.id) ? '⭐' : '☆'}
+                        </button>
                         {match.isMajor && (
                           <span className="px-1.5 py-0.5 rounded text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20">焦点战</span>
                         )}
