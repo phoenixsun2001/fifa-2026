@@ -1,0 +1,437 @@
+===============================================================================
+  2026 FIFA WORLD CUP — PROJECTED SQUADS (Group A–D)
+  Key Players per Team: Stars + Starters
+  Sources: FIFA.com, ESPN, Olympics.com, The Guardian, BBC Sport, etc.
+  Retrieved: June 2026
+===============================================================================
+
+===============================================================================
+ GROUP A
+===============================================================================
+
+MEXICO:
+  coach: Javier Aguirre
+  players:
+    - Raul Rangel, GK, #1, Chivas (Guadalajara)
+    - Carlos Acevedo, GK, #12, Club Santos Laguna
+    - Guillermo Ochoa, GK, #13, Club America (veteran, 6th World Cup)
+    - Jorge Sanchez, DF, #2, Ajax / Sevilla
+    - Cesar Montes, DF, #3, Almeria / Monterrey
+    - Edson Alvarez, DF, #4, West Ham United (Captain)
+    - Johan Vasquez, DF, #5, Genoa
+    - Israel Reyes, DF, #15, Club America
+    - Mateo Chavez, DF, #20, Chivas
+    - Jesus Gallardo, DF, #23, Monterrey
+    - Erik Lira, MF, #6, Cruz Azul
+    - Luis Romo, MF, #7, Cruz Azul
+    - Alvaro Fidalgo, MF, #8, Club America
+    - Raul Jimenez, FW, #9, Fulham
+    - Alexis Vega, FW, #10, Toluca
+    - Santiago Gimenez, FW, #11, AC Milan
+    - Armando Gonzalez, FW, #14, Chivas
+    - Julian Quinones, FW, #16, Al-Qadisiyah
+    - Orbelin Pineda, MF, #17, AEK Athens
+    - Obed Vargas, MF, #18, Seattle Sounders
+    - Gilberto Mora, MF, #19, Chivas (youngest, age 17)
+    - Cesar Huerta, FW, #21, Club Universidad Nacional (Pumas)
+    - Guillermo Martinez, FW, #22, Club America
+    - Luis Chavez, MF, #24, Dynamo Kyiv
+    - Roberto Alvarado, FW, #25, Chivas
+    - Brian Gutierrez, MF, #26, Chicago Fire
+
+SOUTH AFRICA:
+  coach: Hugo Broos
+  players:
+    - Ronwen Williams, GK, #1, Mamelodi Sundowns (Captain)
+    - Ricardo Goss, GK, #16, Siwelele FC
+    - Sipho Chaine, GK, #23, Orlando Pirates
+    - Aubrey Modiba, DF, #2, Mamelodi Sundowns
+    - Siyanda Xulu, DF, #3, Mamelodi Sundowns
+    - Grant Kekana, DF, #5, Mamelodi Sundowns
+    - Rushwin Dortley, DF, #14, Kaizer Chiefs
+    - Nkosinathi Sibisi, DF, #21, Orlando Pirates
+    - Teboho Mokoena, MF, #4, Mamelodi Sundowns
+    - Thalente Mbatha, MF, #5, Orlando Pirates
+    - Themba Zwane, MF, #11, Mamelodi Sundowns
+    - Sphephelo Sithole, MF, #13, Tondela (Portugal)
+    - Jayden Adams, MF, #23, Stellenbosch FC
+    - Relebohile Mofokeng, MF/FW, #17, Orlando Pirates
+    - Percy Tau, FW, #10, Al Ahly (Egypt)
+    - Lyle Foster, FW, #9, Burnley
+    - Iqraam Rayners, FW, #7, Mamelodi Sundowns
+    - Evidence Makgopa, FW, #19, Orlando Pirates
+    - Zakhele Lepasa, FW, #12, Orlando Pirates
+    - Kamohelo Sebelebele, MF, #25, Mamelodi Sundowns
+
+SOUTH KOREA:
+  coach: Hong Myung-bo
+  players:
+    - Jo Hyeon-woo, GK, #1, Ulsan HD
+    - Kim Seung-gyu, GK, #21, FC Tokyo
+    - Song Bum-keun, GK, #23, Jeonbuk Hyundai Motors
+    - Kim Min-jae, DF, #4, Bayern Munich
+    - Seol Young-woo, DF, #3, Zvezda (Red Star Belgrade)
+    - Cho Yu-min, DF, #20, Sharjah FC
+    - Lee Tae-seok, DF, #15, Jeonbuk Hyundai Motors
+    - Kim Jin-su, DF, #2, Jeonbuk Hyundai Motors
+    - Kwon Kyung-won, DF, #14, Suwon FC
+    - Hwang In-beom, MF, #6, Feyenoord
+    - Paik Seung-ho, MF, #8, Birmingham City
+    - Lee Jae-sung, MF, #13, Mainz 05
+    - Lee Kang-in, MF, #19, PSG (Paris Saint-Germain)
+    - Park Yong-woo, MF, #5, Al Ain
+    - Son Heung-min, FW, #7, Tottenham Hotspur (Captain)
+    - Hwang Hee-chan, FW, #11, Wolverhampton Wanderers
+    - Oh Se-hun, FW, #16, Ulsan HD
+    - Lee Ki-hyuk, FW, #22, FC Seoul
+    - Bae Jun-ho, MF, #18, Stoke City
+
+CZECH REPUBLIC (CZECHIA):
+  coach: Miroslav Koubek
+  players:
+    - Lukas Hornicek, GK, #1, Braga
+    - Matej Kovar, GK, #23, PSV Eindhoven
+    - Jindrich Stanek, GK, #12, Slavia Prague
+    - Vladimir Coufal, DF, #5, West Ham United
+    - Ladislav Krejci, DF, #6, Slavia Prague (Captain)
+    - David Zima, DF, #3, Slavia Prague
+    - Tomas Holes, DF, #18, Slavia Prague
+    - Robin Hranac, DF, #4, Hoffenheim
+    - Stepan Chaloupek, DF, #2, Slavia Prague
+    - David Jurasek, DF, #15, Real Betis
+    - Tomas Soucek, MF, #8, West Ham United
+    - Lukas Provod, MF, #14, Slavia Prague
+    - Pavel Sulc, MF, #10, Slavia Prague
+    - Michal Sadilek, MF, #13, Twente
+    - Lukas Cerv, MF, #20, Slavia Prague
+    - Adam Hlozek, FW, #19, Hoffenheim
+    - Patrik Schick, FW, #9, Bayer Leverkusen
+    - Jan Kuchta, FW, #17, Slavia Prague
+    - Mojmir Chytil, FW, #21, Slavia Prague
+
+
+===============================================================================
+ GROUP B
+===============================================================================
+
+CANADA:
+  coach: Jesse Marsch
+  players:
+    - Maxime Crepeau, GK, #1, Portland Timbers
+    - Dayne St. Clair, GK, #18, Minnesota United
+    - Owen Goodman, GK, #12, Crystal Palace (on loan)
+    - Alphonso Davies, DF, #19, Bayern Munich (Captain)
+    - Alistair Johnston, DF, #2, Celtic
+    - Moise Bombito, DF, #3, Nice
+    - Derek Cornelius, DF, #4, Marseille
+    - Richie Laryea, DF, #22, Toronto FC
+    - Kamal Miller, DF, #5, Portland Timbers
+    - Stephen Eustaquio, MF, #7, FC Porto
+    - Ismael Kone, MF, #8, Marseille
+    - Jonathan Osorio, MF, #6, Toronto FC
+    - Mathieu Choiniere, MF, #14, LAFC
+    - Ali Ahmed, MF, #10, Vancouver Whitecaps
+    - Tajon Buchanan, MF/FW, #17, Villarreal
+    - Jonathan David, FW, #9, Juventus
+    - Cyle Larin, FW, #11, Mallorca
+    - Jacob Shaffelburg, FW, #20, LAFC
+    - Liam Millar, FW, #15, Hull City
+    - Niko Sigur, MF, #13, KVC Westerlo
+
+BOSNIA AND HERZEGOVINA:
+  coach: Sergej Barbarez
+  players:
+    - Nikola Vasilj, GK, #1, FC St. Pauli
+    - Asmir Begovic, GK, #12, Everton
+    - Nikola Cacic, GK, #23, Borac Banja Luka
+    - Sead Kolasinac, DF, #3, Atalanta
+    - Amar Dedic, DF, #2, Benfica
+    - Nikola Katic, DF, #4, FC Zurich
+    - Nihad Mujakic, DF, #5, Gorica
+    - Tarik Muharemovic, DF, #15, Sassuolo
+    - Jusuf Gazibegovic, DF, #22, Celje
+    - Esmir Bajraktarevic, MF, #10, PSV Eindhoven
+    - Gojko Cimirot, MF, #6, Al-Fateh
+    - Rade Krunic, MF, #8, Fenerbahce
+    - Armin Gigovic, MF, #17, Holstein Kiel
+    - Kerim Alajbegovic, MF, #20, Borussia Dortmund
+    - Edin Dzeko, FW, #9, Fenerbahce (Captain, age 40)
+    - Ermedin Demirovic, FW, #11, VfB Stuttgart
+    - Samed Bazdar, FW, #19, Sporting Gijon
+    - Benjamin Tahirovic, MF, #14, Ajax
+
+QATAR:
+  coach: Julen Lopetegui
+  players:
+    - Meshaal Barsham, GK, #1, Al-Sadd
+    - Mahmoud Abunada, GK, #22, Al Rayyan
+    - Salah Zakaria, GK, #12, Al-Duhail
+    - Pedro Miguel, DF, #2, Al-Sadd
+    - Boualem Khoukhi, DF, #3, Al-Sadd
+    - Tarek Salman, DF, #4, Al-Sadd
+    - Lucas Mendes, DF, #5, Al-Wakrah
+    - Homam Ahmed, DF, #6, Al-Gharafa
+    - Sultan Al-Brake, DF, #13, Al-Duhail
+    - Niall Mason, DF, #14, Al-Wakrah
+    - Abdulaziz Hatem, MF, #8, Al-Rayyan
+    - Karim Boudiaf, MF, #10, Al-Duhail
+    - Assim Madibo, MF, #16, Al-Duhail
+    - Muhammad Waad, MF, #15, Al-Sadd
+    - Ahmed Alaaeldin, MF, #18, Al-Gharafa
+    - Akram Afif, FW, #7, Al-Sadd (star playmaker)
+    - Almoez Ali, FW, #9, Al-Duhail (all-time top scorer)
+    - Hassan Al-Haydos, FW, #11, Al-Sadd
+    - Yusuf Abdurisag, FW, #17, Al-Sadd
+    - Edmilson Junior, FW, #20, Al-Wakrah
+
+SWITZERLAND:
+  coach: Murat Yakin
+  players:
+    - Marvin Keller, GK, #1, BSC Young Boys
+    - Gregor Kobel, GK, #12, Borussia Dortmund
+    - Yvon Mvogo, GK, #23, Lorient
+    - Manuel Akanji, DF, #4, Manchester City
+    - Ricardo Rodriguez, DF, #3, Torino
+    - Fabian Schar, DF, #5, Newcastle United
+    - Silvan Widmer, DF, #2, Mainz 05
+    - Jordan Lotomba, DF, #14, Nice
+    - Leonidas Stergiou, DF, #13, Stuttgart
+    - Granit Xhaka, MF, #10, Bayer Leverkusen (Captain, 4th World Cup)
+    - Remo Freuler, MF, #8, Bologna
+    - Denis Zakaria, MF, #6, Monaco
+    - Michel Aebischer, MF, #15, Bologna
+    - Ruben Vargas, MF, #7, Sevilla
+    - Dan Ndoye, FW, #11, Nottingham Forest
+    - Breel Embolo, FW, #9, Stade Rennais
+    - Zeki Amdouni, FW, #19, Burnley
+    - Noah Okafor, FW, #17, Napoli (on loan)
+    - Cedric Itten, FW, #20, Fortuna Dusseldorf
+
+
+===============================================================================
+ GROUP C
+===============================================================================
+
+BRAZIL:
+  coach: Carlo Ancelotti
+  players:
+    - Alisson, GK, #1, Liverpool
+    - Ederson, GK, #23, Fenerbahce
+    - Weverton, GK, #12, Gremio
+    - Marquinhos, DF, #4, PSG (Captain)
+    - Danilo, DF, #2, Flamengo
+    - Gabriel Magalhaes, DF, #6, Arsenal
+    - Alex Sandro, DF, #14, Flamengo
+    - Eder Militao, DF, #3, Real Madrid
+    - Guilherme Arana, DF, #16, Atletico Mineiro
+    - Casemiro, MF, #5, Manchester United
+    - Bruno Guimaraes, MF, #8, Newcastle United
+    - Lucas Paqueta, MF, #11, West Ham United
+    - Andreas Pereira, MF, #15, Fulham
+    - Joao Gomes, MF, #18, Wolverhampton Wanderers
+    - Neymar, FW, #10, Santos
+    - Vinicius Junior, FW, #7, Real Madrid
+    - Rodrygo, FW, #21, Real Madrid
+    - Raphinha, FW, #19, Barcelona
+    - Matheus Cunha, FW, #9, Manchester United
+    - Endrick, FW, #20, Real Madrid
+
+MOROCCO:
+  coach: Mohamed Ouahbi
+  players:
+    - Yassine Bounou (Bono), GK, #1, Al-Hilal
+    - Munir El Kajoui, GK, #12, RS Berkane
+    - Ahmed Reda Tagnaouti, GK, #23, AS FAR
+    - Achraf Hakimi, DF, #2, PSG (Captain)
+    - Noussair Mazraoui, DF, #3, Manchester United
+    - Nayef Aguerd, DF, #5, Real Sociedad
+    - Anass Salah-Eddine, DF, #4, Roma
+    - Achraf Dari, DF, #6, Al-Duhail
+    - Ismael Kandouss, DF, #13, Gent
+    - Sofyan Amrabat, MF, #16, Fenerbahce
+    - Azzedine Ounahi, MF, #8, Marseille
+    - Selim Amallah, MF, #14, Al-Okhdood
+    - Bilal El Khannous, MF, #10, Leicester City
+    - Ayyoub Bouaddi, MF, #20, Lille
+    - Brahim Diaz, MF/FW, #22, Real Madrid
+    - Abde Ezzalzouli, FW, #17, Real Betis
+    - Youssef En-Nesyri, FW, #9, Al-Ahli (note: some sources say LEFT OUT of final squad)
+    - Hakim Ziyech, MF, #11, Al-Duhail
+    - Walid Cheddira, FW, #19, Espanyol
+
+HAITI:
+  coach: Sebastien Migne
+  players:
+    - Johny Placide, GK, #1, SC Bastia (Captain)
+    - Alexandre Pierre, GK, #16, FC Sochaux
+    - Josue Duverger, GK, #23, FC Cosmos Koblenz
+    - Carlens Arcus, DF, #2, Angers SCO
+    - Ricardo Ade, DF, #4, TBD
+    - Hannes Delcroix, DF, #5, Burnley
+    - Jean-Kevin Duverne, DF, #22, TBD
+    - Alanys Pascal, DF, #3, TBD
+    - Bryan Alceus, MF, #6, TBD
+    - Steeven Saba, MF, #8, TBD
+    - Derrick Etienne, MF, #10, TBD
+    - Duckens Nazon, FW, #9, TBD
+    - Wilson Isidor, FW, #11, TBD
+    - Lenny Joseph, FW, #13, Debrecen (Hungary)
+    - Ruben Providence, FW, #14, TBD
+    - Louicius Deedson, FW, #17, TBD
+    - Frantzdy Pierrot, FW, #19, TBD
+
+SCOTLAND:
+  coach: Steve Clarke
+  players:
+    - Craig Gordon, GK, #1, Hearts (age 43)
+    - Angus Gunn, GK, #12, Nottingham Forest
+    - Liam Kelly, GK, #23, Rangers
+    - Andy Robertson, DF, #2, Liverpool (Captain)
+    - Kieran Tierney, DF, #3, Arsenal
+    - Scott McKenna, DF, #5, Copenhagen
+    - Jack Hendry, DF, #6, Al-Ettifaq
+    - Aaron Hickey, DF, #4, Brentford
+    - Nathan Patterson, DF, #22, Everton
+    - Anthony Ralston, DF, #24, Celtic
+    - Scott McTominay, MF, #8, Napoli
+    - John McGinn, MF, #7, Aston Villa
+    - Billy Gilmour, MF, #10, Napoli
+    - Lewis Ferguson, MF, #14, Bologna
+    - Ryan Christie, MF, #11, Bournemouth
+    - Kenny McLean, MF, #16, Norwich City
+    - Stuart Armstrong, MF, #17, TBD
+    - Lawrence Shankland, FW, #9, Hearts
+    - Lyndon Dykes, FW, #19, QPR
+    - Ben Doak, MF/FW, #20, Liverpool
+    - Che Adams, FW, #15, Torino
+
+
+===============================================================================
+ GROUP D
+===============================================================================
+
+USA:
+  coach: Mauricio Pochettino
+  players:
+    - Matt Turner, GK, #1, New England Revolution
+    - Matt Freese, GK, #24, New York City FC
+    - Chris Brady, GK, #25, Chicago Fire FC
+    - Sergino Dest, DF, #2, PSV
+    - Chris Richards, DF, #3, Crystal Palace
+    - Antonee Robinson, DF, #5, Fulham
+    - Auston Trusty, DF, #6, Celtic
+    - Miles Robinson, DF, #12, FC Cincinnati
+    - Tim Ream, DF, #13, Charlotte FC
+    - Alex Freeman, DF, #16, Villarreal
+    - Max Arfsten, DF, #18, Columbus Crew
+    - Mark McKenzie, DF, #22, Toulouse
+    - Joe Scally, DF, #23, Borussia Monchengladbach
+    - Tyler Adams, MF, #4, AFC Bournemouth
+    - Gio Reyna, MF, #7, Borussia Monchengladbach
+    - Weston McKennie, MF, #8, Juventus
+    - Sebastian Berhalter, MF, #14, Vancouver Whitecaps FC
+    - Cristian Roldan, MF, #15, Seattle Sounders FC
+    - Malik Tillman, MF, #17, Bayer Leverkusen
+    - Ricardo Pepi, FW, #9, PSV
+    - Christian Pulisic, FW, #10, Inter Milan
+    - Brenden Aaronson, FW, #11, Leeds United
+    - Haji Wright, FW, #19, Coventry City
+    - Folarin Balogun, FW, #20, AS Monaco
+    - Tim Weah, FW, #21, Marseille
+    - Alex Zendejas, FW, #26, Club America
+
+PARAGUAY:
+  coach: Gustavo Alfaro
+  players:
+    - Gatito Fernandez, GK, #1, Cerro Porteno
+    - Orlando Gil, GK, #12, San Lorenzo
+    - Gaston Olveira, GK, #22, Olimpia
+    - Omar Alderete, DF, #3, Getafe
+    - Fabian Balbuena, DF, #5, Dynamo Moscow
+    - Junior Alonso, DF, #6, Krasnodar
+    - Juan Caceres, DF, #13, Dynamo Moscow
+    - Gustavo Gomez, DF, #15, Al-Nasr
+    - Gustavo Velazquez, DF, #2, Cerro Porteno
+    - Jose Canale, DF, #13, Libertad
+    - Diego Gomez, MF, #8, Inter Miami
+    - Andres Cubas, MF, #14, Vancouver Whitecaps
+    - Damian Bobadilla, MF, #16, Spartak Moscow
+    - Alejandro Romero Gamarra (Kaku), MF, #17, Al-Taawoun
+    - Julio Enciso, MF, #19, Brighton / Ipswich (on loan)
+    - Braian Ojeda, MF, #20, Real Salt Lake
+    - Matias Galarza, MF, #23, Cerro Porteno
+    - Mauricio, MF, #11, Olimpia
+    - Miguel Almiron, FW, #10, Newcastle United / Atlanta United
+    - Antonio Sanabria, FW, #9, Torino
+    - Ramon Sosa, FW, #7, Estudiantes
+    - Alex Arce, FW, #18, Spartak Trnava
+    - Gabriel Avalos, FW, #21, Argentinos Juniors
+    - Isidro Pitta, FW, #25, Cerro Porteno
+
+AUSTRALIA:
+  coach: Tony Popovic
+  players:
+    - Mathew Ryan, GK, #1, AZ Alkmaar
+    - Paul Izzo, GK, #12, Melbourbe Victory
+    - Patrick Beach, GK, #18, Central Coast Mariners
+    - Milos Degenek, DF, #2, APOEL
+    - Alessandro Circati, DF, #3, Parma
+    - Jacob Italiano, DF, #4, Borussia Dortmund II
+    - Jordan Bos, DF, #5, Feyenoord
+    - Jason Geria, DF, #6, Albirex Niigata
+    - Aziz Behich, DF, #16, Melbourne City
+    - Harry Souttar, DF, #19, Sheffield United
+    - Cameron Burgess, DF, #21, Swansea City
+    - Kai Trewin, DF, #15, Melbourne City
+    - Jackson Irvine, MF, #22, St. Pauli (Captain)
+    - Connor Metcalfe, MF, #8, St. Pauli
+    - Ajdin Hrustic, MF, #10, Salernitana
+    - Aiden O'Neill, MF, #13, Standard Liege
+    - Cameron Devlin, MF, #14, Hearts
+    - Cristian Volpato, MF, #20, Sassuolo
+    - Paul Okon-Engstler, MF, #24, Western United
+    - Mathew Leckie, FW, #7, Melbourne City
+    - Mohamed Toure, FW, #9, Stade de Reims
+    - Awer Mabil, MF/FW, #11, Grasshopper
+    - Nestory Irankunda, FW, #17, FC Ingolstadt / Bayern Munich II
+    - Nishan Velupillay, FW, #23, Melbourne Victory
+    - Tete Yengi, FW, #26, Ipswich Town
+    - Lucas Herrington, DF, #25, Western Sydney Wanderers
+
+TURKEY:
+  coach: Vincenzo Montella
+  players:
+    - Mert Gunok, GK, #1, Fenerbahce
+    - Altay Bayindir, GK, #12, Manchester United
+    - Ugurcan Cakir, GK, #23, Galatasaray
+    - Caglar Soyuncu, DF, #4, Atletico Madrid / Fenerbahce
+    - Abdulkerim Bardakci, DF, #2, Galatasaray
+    - Merih Demiral, DF, #3, Al-Ahli
+    - Ozan Kabak, DF, #5, Hoffenheim
+    - Mert Muldur, DF, #7, Besiktas
+    - Ferdi Kadioglu, DF, #18, Brighton
+    - Zeki Celik, DF, #6, Roma
+    - Kaan Ayhan, DF, #8, Galatasaray
+    - Eren Elmali, DF, #15, Inter Milan / Palermo (on loan)
+    - Hakan Calhanoglu, MF, #14, Inter Milan
+    - Orkun Kokcu, MF, #10, Besiktas (on loan from Benfica)
+    - Salih Ozcan, MF, #16, Wolfsburg
+    - Ismail Yuksek, MF, #20, Fenerbahce
+    - Atakan Karazor, MF, #21, Stuttgart
+    - Irfan Can Kahveci, MF, #9, Fenerbahce
+    - Arda Guler, MF/FW, #8, Real Madrid (star playmaker)
+    - Can Uzun, MF/FW, #11, Eintracht Frankfurt
+    - Kenan Yildiz, FW, #17, Juventus
+    - Baris Alper Yilmaz, FW, #7, Galatasaray
+    - Kerem Akturkoglu, FW, #22, Benfica
+    - Deniz Gul, FW, #19, Porto
+    - Yunus Akgun, FW, #12, Galatasaray
+    - Yusuf Sari, FW, #6, Caykur Rizespor
+
+===============================================================================
+ NOTE: Squad compositions are based on officially announced 26-man rosters
+ from FIFA.com, ESPN, BBC, and other major sources as of June 2026.
+ Some club assignments may differ slightly due to the summer transfer window.
+ Shirt numbers are based on official squad number announcements where available,
+ or inferred from ESPN/Transfermarkt listings.
+===============================================================================
