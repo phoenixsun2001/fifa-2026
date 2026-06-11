@@ -933,6 +933,9 @@ export default function App() {
   const [journeyResult, setJourneyResult] = useState(null);
   const [isJourneyRunning, setIsJourneyRunning] = useState(false);
 
+  // 球队阵容
+  const [squadTeam, setSquadTeam] = useState('');
+
   // 倒计时
   useEffect(() => {
     const targetDate = new Date('2026-06-12T03:00:00+08:00');
@@ -2805,7 +2808,6 @@ export default function App() {
 
         {/* TAB: 📋 球队阵容 */}
         {activeTab === 'squads' && (() => {
-          const [squadTeam, setSquadTeam] = useState('');
           const squad = squadTeam ? teamSquads[squadTeam] : null;
           const posLabels = { GK: '门将', DF: '后卫', MF: '中场', FW: '前锋' };
           const posColors = { GK: 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30', DF: 'bg-blue-500/20 text-blue-300 border-blue-500/30', MF: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30', FW: 'bg-rose-500/20 text-rose-300 border-rose-500/30' };
