@@ -836,8 +836,8 @@ export default function App() {
 
     try {
       // 使用 thesportsdb.com 免费 CORS 友好 API
-      // World Cup 2026 league id: 4495 (FIFA World Cup)
-      const response = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4495&s=2026');
+      // World Cup league id: 4429 (FIFA World Cup)
+      const response = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4429&s=2026');
       if (!response.ok) throw new Error(`API 返回 ${response.status}`);
 
       const data = await response.json();
@@ -859,19 +859,22 @@ export default function App() {
         const code = teamMetadata[name].code?.toLowerCase() || '';
         if (code) nameMap[code] = name;
       });
-      // 额外的英文→中文映射
+      // 额外的英文→中文映射（含连字符/特殊字符变体）
       const extraNames = {
         'mexico': '墨西哥', 'southafrica': '南非', 'southkorea': '韩国', 'czechrepublic': '捷克',
-        'canada': '加拿大', 'bosniaandherzegovina': '波黑', 'qatar': '卡塔尔', 'switzerland': '瑞士',
+        'canada': '加拿大', 'bosniaandherzegovina': '波黑', 'bosnia-herzegovina': '波黑',
+        'qatar': '卡塔尔', 'switzerland': '瑞士',
         'brazil': '巴西', 'morocco': '摩洛哥', 'haiti': '海地', 'scotland': '苏格兰',
         'usa': '美国', 'unitedstates': '美国', 'paraguay': '巴拉圭', 'australia': '澳大利亚', 'turkey': '土耳其',
-        'germany': '德国', 'curacao': '库拉索', 'ivorycoast': '科特迪瓦', 'ecuador': '厄瓜多尔',
+        'germany': '德国', 'curacao': '库拉索', 'cotedivoire': '科特迪瓦', 'ivorycoast': '科特迪瓦',
+        'ecuador': '厄瓜多尔',
         'netherlands': '荷兰', 'japan': '日本', 'sweden': '瑞典', 'tunisia': '突尼斯',
         'belgium': '比利时', 'egypt': '埃及', 'iran': '伊朗', 'newzealand': '新西兰',
         'spain': '西班牙', 'capeverde': '佛得角', 'saudiarabia': '沙特阿拉伯', 'uruguay': '乌拉圭',
         'france': '法国', 'senegal': '塞内加尔', 'norway': '挪威', 'iraq': '伊拉克',
         'argentina': '阿根廷', 'algeria': '阿尔及利亚', 'austria': '奥地利', 'jordan': '约旦',
-        'portugal': '葡萄牙', 'drcongo': '民主刚果', 'uzbekistan': '乌兹别克斯坦', 'colombia': '哥伦比亚',
+        'portugal': '葡萄牙', 'drcongo': '民主刚果', 'democraticrepublicofthecongo': '民主刚果',
+        'uzbekistan': '乌兹别克斯坦', 'colombia': '哥伦比亚',
         'england': '英格兰', 'croatia': '克罗地亚', 'ghana': '加纳', 'panama': '巴拿马',
       };
       Object.keys(extraNames).forEach(k => { nameMap[k] = extraNames[k]; });
@@ -883,8 +886,8 @@ export default function App() {
 
       events.forEach(evt => {
         if (!evt.intHomeScore || !evt.intAwayScore) return; // 未完成的比赛
-        const homeKey = (evt.strHomeTeam || '').toLowerCase().replace(/\s/g, '');
-        const awayKey = (evt.strAwayTeam || '').toLowerCase().replace(/\s/g, '');
+        const homeKey = (evt.strHomeTeam || '').toLowerCase().replace(/[\s-]/g, '');
+        const awayKey = (evt.strAwayTeam || '').toLowerCase().replace(/[\s-]/g, '');
         const homeName = nameMap[homeKey];
         const awayName = nameMap[awayKey];
         if (!homeName || !awayName) return;
