@@ -1130,7 +1130,7 @@ export default function App() {
 
   // 4. 一键深度泊松模拟（前台单次）
   const handleAutoSimulateOnce = () => {
-    const rng = createRng(batchSeed); // B2：单次模拟锚定可见种子 → 可复现
+    const rng = createRng(Math.floor(Math.random() * 1e9)); // 每次点击全新随机种子 → 每次结果不同（可复现性留给批量推演的种子）
     const lockedMap = {};
     matches.forEach(m => {
       if (m.locked && m.homeScore !== '' && m.awayScore !== '') {
