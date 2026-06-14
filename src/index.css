@@ -1,3 +1,141 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ==================== 亮色主题覆盖 ==================== */
+/* 通过 html.light class 全局翻转暗色 UI 为亮色 */
+/* 这样不需要改动 220+ 处 Tailwind class */
+
+html.light {
+  /* 全局背景和文字 */
+  --tw-bg-opacity: 1;
+  background-color: rgb(243 244 246) !important; /* gray-100 */
+  color: rgb(17 24 39) !important; /* gray-900 */
+}
+
+html.light body {
+  background-color: rgb(243 244 246) !important;
+  color: rgb(17 24 39) !important;
+}
+
+/* 根容器 */
+html.light .min-h-screen {
+  background-color: rgb(243 244 246) !important;
+  color: rgb(17 24 39) !important;
+}
+
+/* ========== 背景色覆盖 ========== */
+
+/* slate-950 → 白色/近白 */
+html.light .bg-slate-950,
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/90,
+html.light .bg-slate-950\/30,
+html.light .bg-slate-950\/40,
+html.light .bg-slate-950\/60 {
+  background-color: rgb(255 255 255) !important;
+}
+
+/* slate-900 → 浅灰白 */
+html.light .bg-slate-900,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/40,
+html.light .bg-slate-900\/30,
+html.light .bg-slate-900\/20 {
+  background-color: rgb(249 250 251) !important; /* gray-50 */
+}
+
+/* slate-800 → 浅灰 */
+html.light .bg-slate-800,
+html.light .bg-slate-800\/60,
+html.light .bg-slate-800\/40,
+html.light .bg-slate-800\/30,
+html.light .bg-slate-800\/20 {
+  background-color: rgb(243 244 246) !important; /* gray-100 */
+}
+
+html.light .bg-slate-800\/50 {
+  background-color: rgb(229 231 235) !important; /* gray-200 */
+}
+
+/* ========== 边框覆盖 ========== */
+
+html.light .border-slate-950 { border-color: rgb(17 24 39) !important; }
+html.light .border-slate-900 { border-color: rgb(209 213 219) !important; } /* gray-300 */
+html.light .border-slate-800,
+html.light .border-slate-800\/60,
+html.light .border-slate-800\/40,
+html.light .border-slate-800\/20,
+html.light .border-slate-800\/50 {
+  border-color: rgb(229 231 235) !important; /* gray-200 */
+}
+html.light .border-slate-700 { border-color: rgb(209 213 219) !important; } /* gray-300 */
+
+/* ========== 文字颜色覆盖 ========== */
+
+/* slate-100/200 → 深色 */
+html.light .text-slate-100 { color: rgb(17 24 39) !important; }
+html.light .text-slate-200 { color: rgb(31 41 55) !important; }
+html.light .text-slate-300 { color: rgb(55 65 81) !important; }
+
+/* slate-400 → 中灰（次要文字） */
+html.light .text-slate-400 { color: rgb(107 114 128) !important; }
+html.light .text-slate-500 { color: rgb(107 114 128) !important; }
+html.light .text-slate-600 { color: rgb(75 85 99) !important; }
+
+/* ========== 渐变背景覆盖 ========== */
+
+html.light .from-slate-900 { --tw-gradient-from: rgb(249 250 251) !important; }
+html.light .to-slate-950 { --tw-gradient-to: rgb(255 255 255) !important; }
+html.light .bg-gradient-to-b { background-image: linear-gradient(to bottom, var(--tw-gradient-stops)) !important; }
+
+/* hero 区域渐变 */
+html.light .from-emerald-950\/40 { --tw-gradient-from: rgb(16 185 129 / 0.08) !important; }
+html.light .via-slate-900 { --tw-gradient-via: rgb(249 250 251) !important; }
+html.light .to-red-950\/30 { --tw-gradient-to: rgb(239 68 68 / 0.05) !important; }
+html.light .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)) !important; }
+
+/* ========== 输入框覆盖 ========== */
+
+html.light input,
+html.light select,
+html.light textarea {
+  background-color: rgb(255 255 255) !important;
+  color: rgb(17 24 39) !important;
+  border-color: rgb(209 213 219) !important;
+}
+
+html.light input::placeholder {
+  color: rgb(156 163 175) !important;
+}
+
+html.light input:focus,
+html.light select:focus {
+  border-color: rgb(20 184 166) !important; /* teal-500 */
+}
+
+/* ========== 表格覆盖 ========== */
+
+html.light table { border-color: rgb(229 231 235) !important; }
+html.light thead { background-color: rgb(249 250 251) !important; }
+html.light tbody tr:hover { background-color: rgb(243 244 246) !important; }
+
+/* ========== 滚动条 ========== */
+
+html.light ::-webkit-scrollbar { width: 6px; }
+html.light ::-webkit-scrollbar-track { background: rgb(243 244 246); }
+html.light ::-webkit-scrollbar-thumb { background: rgb(209 213 219); border-radius: 3px; }
+
+/* ========== 顶部导航栏覆盖 ========== */
+
+html.light .sticky.top-0 {
+  background-color: rgb(255 255 255 / 0.95) !important;
+  border-bottom-color: rgb(229 231 235) !important;
+}
+
+/* ========== 底部栏覆盖 ========== */
+
+html.light footer {
+  background-color: rgb(249 250 251) !important;
+  border-top-color: rgb(229 231 235) !important;
+}

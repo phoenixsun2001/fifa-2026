@@ -1,4 +1,8 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { simulateMatchRealistic } from './src/engine/sim';
+import { simulateTournament } from './src/engine/tournament';
+import { createRng } from './src/engine/rng';
+import { runBatchSimulation } from './src/engine/batch';
 
 // ==================== 1. 真实基础数据 ====================
 
@@ -83,87 +87,87 @@ const initialGroups = {
 
 // 北京时间日程基础数据
 const initialMatches = [
-  { id: 1, date: '2026-06-12', time: '03:00', group: 'Group A', home: '墨西哥', away: '南非', venue: '阿兹特克体育场', city: '墨西哥城', country: '墨西哥', homeScore: '', awayScore: '', isMajor: true },
-  { id: 2, date: '2026-06-12', time: '07:00', group: 'Group A', home: '韩国', away: '捷克', venue: '阿克伦体育场', city: '瓜达拉哈拉', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false },
-  { id: 3, date: '2026-06-13', time: '03:00', group: 'Group B', home: '加拿大', away: '波黑', venue: '多伦多体育场', city: '多伦多', country: '加拿大', homeScore: '', awayScore: '', isMajor: true },
-  { id: 4, date: '2026-06-13', time: '09:00', group: 'Group D', home: '美国', away: '巴拉圭', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 5, date: '2026-06-14', time: '03:00', group: 'Group B', home: '卡塔尔', away: '瑞士', venue: '李维斯体育场', city: '旧金山湾区', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 6, date: '2026-06-14', time: '06:00', group: 'Group C', home: '巴西', away: '摩洛哥', venue: '大都会人寿体育场', city: '纽约/新泽西', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 7, date: '2026-06-14', time: '09:00', group: 'Group C', home: '海地', away: '苏格兰', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 8, date: '2026-06-14', time: '12:00', group: 'Group D', home: '澳大利亚', away: '土耳其', venue: 'BC Place体育场', city: '温哥华', country: '加拿大', homeScore: '', awayScore: '', isMajor: false },
-  { id: 9, date: '2026-06-15', time: '01:00', group: 'Group E', home: '德国', away: '库拉索', venue: 'NRG体育场', city: '休斯敦', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 10, date: '2026-06-15', time: '03:00', group: 'Group F', home: '荷兰', away: '日本', venue: 'AT&T体育场', city: '达拉斯', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 11, date: '2026-06-15', time: '07:00', group: 'Group E', home: '科特迪瓦', away: '厄瓜多尔', venue: '林肯金融体育场', city: '费城', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 12, date: '2026-06-15', time: '08:00', group: 'Group F', home: '瑞典', away: '突尼斯', venue: 'BBVA体育场', city: '蒙特雷', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false },
-  { id: 13, date: '2026-06-16', time: '00:00', group: 'Group H', home: '西班牙', away: '佛得角', venue: '奔驰体育场', city: '亚特兰大', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 14, date: '2026-06-16', time: '03:00', group: 'Group G', home: '比利时', away: '埃及', venue: '卢门球场', city: '西雅图', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 15, date: '2026-06-16', time: '06:00', group: 'Group H', home: '沙特阿拉伯', away: '乌拉圭', venue: '硬石体育场', city: '迈阿密', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 16, date: '2026-06-16', time: '09:00', group: 'Group G', home: '伊朗', away: '新西兰', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 17, date: '2026-06-17', time: '03:00', group: 'Group I', home: '法国', away: '塞内加尔', venue: '大都会人寿体育场', city: '纽约/新泽西', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 18, date: '2026-06-17', time: '06:00', group: 'Group I', home: '伊拉克', away: '挪威', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 19, date: '2026-06-17', time: '09:00', group: 'Group J', home: '阿根廷', away: '阿尔及利亚', venue: '箭头体育场', city: '堪萨斯城', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 20, date: '2026-06-17', time: '12:00', group: 'Group J', home: '奥地利', away: '约旦', venue: '李维斯体育场', city: '旧金山湾区', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 21, date: '2026-06-18', time: '01:00', group: 'Group K', home: '葡萄牙', away: '民主刚果', venue: 'NRG体育场', city: '休斯敦', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 22, date: '2026-06-18', time: '06:00', group: 'Group K', home: '乌兹别克斯坦', away: '哥伦比亚', venue: '阿兹特克体育场', city: '墨西哥城', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false },
-  { id: 23, date: '2026-06-18', time: '07:00', group: 'Group L', home: '加纳', away: '巴拿马', venue: '多伦多体育场', city: '多伦多', country: '加拿大', homeScore: '', awayScore: '', isMajor: false },
-  { id: 24, date: '2026-06-18', time: '04:00', group: 'Group L', home: '英格兰', away: '克罗地亚', venue: 'AT&T体育场', city: '达拉斯', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 25, date: '2026-06-19', time: '08:00', group: 'Group A', home: '墨西哥', away: '韩国', venue: '阿克伦体育场', city: '瓜达拉哈拉', country: '墨西哥', homeScore: '', awayScore: '', isMajor: true },
-  { id: 26, date: '2026-06-19', time: '03:00', group: 'Group A', home: '捷克', away: '南非', venue: '奔驰体育场', city: '亚特兰大', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 27, date: '2026-06-19', time: '09:00', group: 'Group B', home: '加拿大', away: '卡塔尔', venue: 'BC Place体育场', city: '温哥华', country: '加拿大', homeScore: '', awayScore: '', isMajor: false },
-  { id: 28, date: '2026-06-19', time: '06:00', group: 'Group B', home: '瑞士', away: '波黑', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 29, date: '2026-06-20', time: '03:00', group: 'Group D', home: '美国', away: '澳大利亚', venue: '卢门球场', city: '西雅图', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 30, date: '2026-06-20', time: '03:00', group: 'Group C', home: '巴西', away: '海地', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false },
+  { id: 1, date: '2026-06-12', time: '03:00', group: 'Group A', home: '墨西哥', away: '南非', venue: '阿兹特克体育场', city: '墨西哥城', country: '墨西哥', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 2, date: '2026-06-12', time: '07:00', group: 'Group A', home: '韩国', away: '捷克', venue: '阿克伦体育场', city: '瓜达拉哈拉', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 3, date: '2026-06-13', time: '03:00', group: 'Group B', home: '加拿大', away: '波黑', venue: '多伦多体育场', city: '多伦多', country: '加拿大', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 4, date: '2026-06-13', time: '09:00', group: 'Group D', home: '美国', away: '巴拉圭', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 5, date: '2026-06-14', time: '03:00', group: 'Group B', home: '卡塔尔', away: '瑞士', venue: '李维斯体育场', city: '旧金山湾区', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 6, date: '2026-06-14', time: '06:00', group: 'Group C', home: '巴西', away: '摩洛哥', venue: '大都会人寿体育场', city: '纽约/新泽西', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 7, date: '2026-06-14', time: '09:00', group: 'Group C', home: '海地', away: '苏格兰', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 8, date: '2026-06-14', time: '12:00', group: 'Group D', home: '澳大利亚', away: '土耳其', venue: 'BC Place体育场', city: '温哥华', country: '加拿大', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 9, date: '2026-06-15', time: '01:00', group: 'Group E', home: '德国', away: '库拉索', venue: 'NRG体育场', city: '休斯敦', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 10, date: '2026-06-15', time: '03:00', group: 'Group F', home: '荷兰', away: '日本', venue: 'AT&T体育场', city: '达拉斯', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 11, date: '2026-06-15', time: '07:00', group: 'Group E', home: '科特迪瓦', away: '厄瓜多尔', venue: '林肯金融体育场', city: '费城', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 12, date: '2026-06-15', time: '08:00', group: 'Group F', home: '瑞典', away: '突尼斯', venue: 'BBVA体育场', city: '蒙特雷', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 13, date: '2026-06-16', time: '00:00', group: 'Group H', home: '西班牙', away: '佛得角', venue: '奔驰体育场', city: '亚特兰大', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 14, date: '2026-06-16', time: '03:00', group: 'Group G', home: '比利时', away: '埃及', venue: '卢门球场', city: '西雅图', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 15, date: '2026-06-16', time: '06:00', group: 'Group H', home: '沙特阿拉伯', away: '乌拉圭', venue: '硬石体育场', city: '迈阿密', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 16, date: '2026-06-16', time: '09:00', group: 'Group G', home: '伊朗', away: '新西兰', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 17, date: '2026-06-17', time: '03:00', group: 'Group I', home: '法国', away: '塞内加尔', venue: '大都会人寿体育场', city: '纽约/新泽西', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 18, date: '2026-06-17', time: '06:00', group: 'Group I', home: '伊拉克', away: '挪威', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 19, date: '2026-06-17', time: '09:00', group: 'Group J', home: '阿根廷', away: '阿尔及利亚', venue: '箭头体育场', city: '堪萨斯城', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 20, date: '2026-06-17', time: '12:00', group: 'Group J', home: '奥地利', away: '约旦', venue: '李维斯体育场', city: '旧金山湾区', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 21, date: '2026-06-18', time: '01:00', group: 'Group K', home: '葡萄牙', away: '民主刚果', venue: 'NRG体育场', city: '休斯敦', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 22, date: '2026-06-18', time: '06:00', group: 'Group K', home: '乌兹别克斯坦', away: '哥伦比亚', venue: '阿兹特克体育场', city: '墨西哥城', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 23, date: '2026-06-18', time: '07:00', group: 'Group L', home: '加纳', away: '巴拿马', venue: '多伦多体育场', city: '多伦多', country: '加拿大', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 24, date: '2026-06-18', time: '04:00', group: 'Group L', home: '英格兰', away: '克罗地亚', venue: 'AT&T体育场', city: '达拉斯', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 25, date: '2026-06-19', time: '08:00', group: 'Group A', home: '墨西哥', away: '韩国', venue: '阿克伦体育场', city: '瓜达拉哈拉', country: '墨西哥', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 26, date: '2026-06-19', time: '03:00', group: 'Group A', home: '捷克', away: '南非', venue: '奔驰体育场', city: '亚特兰大', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 27, date: '2026-06-19', time: '09:00', group: 'Group B', home: '加拿大', away: '卡塔尔', venue: 'BC Place体育场', city: '温哥华', country: '加拿大', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 28, date: '2026-06-19', time: '06:00', group: 'Group B', home: '瑞士', away: '波黑', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 29, date: '2026-06-20', time: '03:00', group: 'Group D', home: '美国', away: '澳大利亚', venue: '卢门球场', city: '西雅图', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 30, date: '2026-06-20', time: '03:00', group: 'Group C', home: '巴西', away: '海地', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
   // ===== MD2 剩余 (June 20-23) =====
-  { id: 31, date: '2026-06-20', time: '06:00', group: 'Group D', home: '巴拉圭', away: '土耳其', venue: '箭头体育场', city: '堪萨斯城', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 32, date: '2026-06-20', time: '09:00', group: 'Group C', home: '摩洛哥', away: '苏格兰', venue: '硬石体育场', city: '迈阿密', country: '美国', homeScore: '', awayScore: '', isMajor: false },
+  { id: 31, date: '2026-06-20', time: '06:00', group: 'Group D', home: '巴拉圭', away: '土耳其', venue: '箭头体育场', city: '堪萨斯城', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 32, date: '2026-06-20', time: '09:00', group: 'Group C', home: '摩洛哥', away: '苏格兰', venue: '硬石体育场', city: '迈阿密', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
 
-  { id: 33, date: '2026-06-21', time: '03:00', group: 'Group E', home: '德国', away: '科特迪瓦', venue: '卢门球场', city: '西雅图', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 34, date: '2026-06-21', time: '03:00', group: 'Group F', home: '荷兰', away: '瑞典', venue: '奔驰体育场', city: '亚特兰大', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 35, date: '2026-06-21', time: '07:00', group: 'Group E', home: '库拉索', away: '厄瓜多尔', venue: '阿克伦体育场', city: '瓜达拉哈拉', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false },
-  { id: 36, date: '2026-06-21', time: '07:00', group: 'Group F', home: '日本', away: '突尼斯', venue: 'BBVA体育场', city: '蒙特雷', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false },
-  { id: 37, date: '2026-06-21', time: '09:00', group: 'Group G', home: '比利时', away: '伊朗', venue: 'NRG体育场', city: '休斯敦', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 38, date: '2026-06-21', time: '09:00', group: 'Group H', home: '佛得角', away: '乌拉圭', venue: '林肯金融体育场', city: '费城', country: '美国', homeScore: '', awayScore: '', isMajor: false },
+  { id: 33, date: '2026-06-21', time: '03:00', group: 'Group E', home: '德国', away: '科特迪瓦', venue: '卢门球场', city: '西雅图', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 34, date: '2026-06-21', time: '03:00', group: 'Group F', home: '荷兰', away: '瑞典', venue: '奔驰体育场', city: '亚特兰大', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 35, date: '2026-06-21', time: '07:00', group: 'Group E', home: '库拉索', away: '厄瓜多尔', venue: '阿克伦体育场', city: '瓜达拉哈拉', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 36, date: '2026-06-21', time: '07:00', group: 'Group F', home: '日本', away: '突尼斯', venue: 'BBVA体育场', city: '蒙特雷', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 37, date: '2026-06-21', time: '09:00', group: 'Group G', home: '比利时', away: '伊朗', venue: 'NRG体育场', city: '休斯敦', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 38, date: '2026-06-21', time: '09:00', group: 'Group H', home: '佛得角', away: '乌拉圭', venue: '林肯金融体育场', city: '费城', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
 
-  { id: 39, date: '2026-06-22', time: '03:00', group: 'Group G', home: '埃及', away: '新西兰', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 40, date: '2026-06-22', time: '03:00', group: 'Group H', home: '西班牙', away: '沙特阿拉伯', venue: '硬石体育场', city: '迈阿密', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 41, date: '2026-06-22', time: '06:00', group: 'Group I', home: '法国', away: '挪威', venue: '大都会人寿体育场', city: '纽约/新泽西', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 42, date: '2026-06-22', time: '06:00', group: 'Group I', home: '塞内加尔', away: '伊拉克', venue: '李维斯体育场', city: '旧金山湾区', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 43, date: '2026-06-22', time: '09:00', group: 'Group J', home: '阿根廷', away: '奥地利', venue: '箭头体育场', city: '堪萨斯城', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 44, date: '2026-06-22', time: '09:00', group: 'Group J', home: '阿尔及利亚', away: '约旦', venue: 'BC Place体育场', city: '温哥华', country: '加拿大', homeScore: '', awayScore: '', isMajor: false },
+  { id: 39, date: '2026-06-22', time: '03:00', group: 'Group G', home: '埃及', away: '新西兰', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 40, date: '2026-06-22', time: '03:00', group: 'Group H', home: '西班牙', away: '沙特阿拉伯', venue: '硬石体育场', city: '迈阿密', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 41, date: '2026-06-22', time: '06:00', group: 'Group I', home: '法国', away: '挪威', venue: '大都会人寿体育场', city: '纽约/新泽西', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 42, date: '2026-06-22', time: '06:00', group: 'Group I', home: '塞内加尔', away: '伊拉克', venue: '李维斯体育场', city: '旧金山湾区', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 43, date: '2026-06-22', time: '09:00', group: 'Group J', home: '阿根廷', away: '奥地利', venue: '箭头体育场', city: '堪萨斯城', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 44, date: '2026-06-22', time: '09:00', group: 'Group J', home: '阿尔及利亚', away: '约旦', venue: 'BC Place体育场', city: '温哥华', country: '加拿大', homeScore: '', awayScore: '', isMajor: false, locked: false },
 
-  { id: 45, date: '2026-06-23', time: '03:00', group: 'Group K', home: '葡萄牙', away: '乌兹别克斯坦', venue: '阿兹特克体育场', city: '墨西哥城', country: '墨西哥', homeScore: '', awayScore: '', isMajor: true },
-  { id: 46, date: '2026-06-23', time: '03:00', group: 'Group K', home: '民主刚果', away: '哥伦比亚', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 47, date: '2026-06-23', time: '06:00', group: 'Group L', home: '英格兰', away: '加纳', venue: 'AT&T体育场', city: '达拉斯', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 48, date: '2026-06-23', time: '06:00', group: 'Group L', home: '克罗地亚', away: '巴拿马', venue: '多伦多体育场', city: '多伦多', country: '加拿大', homeScore: '', awayScore: '', isMajor: false },
+  { id: 45, date: '2026-06-23', time: '03:00', group: 'Group K', home: '葡萄牙', away: '乌兹别克斯坦', venue: '阿兹特克体育场', city: '墨西哥城', country: '墨西哥', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 46, date: '2026-06-23', time: '03:00', group: 'Group K', home: '民主刚果', away: '哥伦比亚', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 47, date: '2026-06-23', time: '06:00', group: 'Group L', home: '英格兰', away: '加纳', venue: 'AT&T体育场', city: '达拉斯', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 48, date: '2026-06-23', time: '06:00', group: 'Group L', home: '克罗地亚', away: '巴拿马', venue: '多伦多体育场', city: '多伦多', country: '加拿大', homeScore: '', awayScore: '', isMajor: false, locked: false },
 
   // ===== MD3 第三轮 (June 24-27) =====
-  { id: 49, date: '2026-06-24', time: '03:00', group: 'Group A', home: '墨西哥', away: '捷克', venue: '阿兹特克体育场', city: '墨西哥城', country: '墨西哥', homeScore: '', awayScore: '', isMajor: true },
-  { id: 50, date: '2026-06-24', time: '03:00', group: 'Group A', home: '南非', away: '韩国', venue: '阿克伦体育场', city: '瓜达拉哈拉', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false },
-  { id: 51, date: '2026-06-24', time: '07:00', group: 'Group B', home: '加拿大', away: '瑞士', venue: '多伦多体育场', city: '多伦多', country: '加拿大', homeScore: '', awayScore: '', isMajor: true },
-  { id: 52, date: '2026-06-24', time: '07:00', group: 'Group B', home: '波黑', away: '卡塔尔', venue: 'BC Place体育场', city: '温哥华', country: '加拿大', homeScore: '', awayScore: '', isMajor: false },
-  { id: 53, date: '2026-06-24', time: '09:00', group: 'Group C', home: '巴西', away: '苏格兰', venue: '大都会人寿体育场', city: '纽约/新泽西', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 54, date: '2026-06-24', time: '09:00', group: 'Group C', home: '摩洛哥', away: '海地', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false },
+  { id: 49, date: '2026-06-24', time: '03:00', group: 'Group A', home: '墨西哥', away: '捷克', venue: '阿兹特克体育场', city: '墨西哥城', country: '墨西哥', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 50, date: '2026-06-24', time: '03:00', group: 'Group A', home: '南非', away: '韩国', venue: '阿克伦体育场', city: '瓜达拉哈拉', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 51, date: '2026-06-24', time: '07:00', group: 'Group B', home: '加拿大', away: '瑞士', venue: '多伦多体育场', city: '多伦多', country: '加拿大', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 52, date: '2026-06-24', time: '07:00', group: 'Group B', home: '波黑', away: '卡塔尔', venue: 'BC Place体育场', city: '温哥华', country: '加拿大', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 53, date: '2026-06-24', time: '09:00', group: 'Group C', home: '巴西', away: '苏格兰', venue: '大都会人寿体育场', city: '纽约/新泽西', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 54, date: '2026-06-24', time: '09:00', group: 'Group C', home: '摩洛哥', away: '海地', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
 
-  { id: 55, date: '2026-06-25', time: '03:00', group: 'Group D', home: '美国', away: '土耳其', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 56, date: '2026-06-25', time: '03:00', group: 'Group D', home: '巴拉圭', away: '澳大利亚', venue: 'NRG体育场', city: '休斯敦', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 57, date: '2026-06-25', time: '06:00', group: 'Group E', home: '德国', away: '厄瓜多尔', venue: 'AT&T体育场', city: '达拉斯', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 58, date: '2026-06-25', time: '06:00', group: 'Group E', home: '库拉索', away: '科特迪瓦', venue: 'BBVA体育场', city: '蒙特雷', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false },
-  { id: 59, date: '2026-06-25', time: '09:00', group: 'Group F', home: '荷兰', away: '突尼斯', venue: '奔驰体育场', city: '亚特兰大', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 60, date: '2026-06-25', time: '09:00', group: 'Group F', home: '日本', away: '瑞典', venue: '林肯金融体育场', city: '费城', country: '美国', homeScore: '', awayScore: '', isMajor: false },
+  { id: 55, date: '2026-06-25', time: '03:00', group: 'Group D', home: '美国', away: '土耳其', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 56, date: '2026-06-25', time: '03:00', group: 'Group D', home: '巴拉圭', away: '澳大利亚', venue: 'NRG体育场', city: '休斯敦', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 57, date: '2026-06-25', time: '06:00', group: 'Group E', home: '德国', away: '厄瓜多尔', venue: 'AT&T体育场', city: '达拉斯', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 58, date: '2026-06-25', time: '06:00', group: 'Group E', home: '库拉索', away: '科特迪瓦', venue: 'BBVA体育场', city: '蒙特雷', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 59, date: '2026-06-25', time: '09:00', group: 'Group F', home: '荷兰', away: '突尼斯', venue: '奔驰体育场', city: '亚特兰大', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 60, date: '2026-06-25', time: '09:00', group: 'Group F', home: '日本', away: '瑞典', venue: '林肯金融体育场', city: '费城', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
 
-  { id: 61, date: '2026-06-26', time: '03:00', group: 'Group G', home: '比利时', away: '新西兰', venue: '箭头体育场', city: '堪萨斯城', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 62, date: '2026-06-26', time: '03:00', group: 'Group G', home: '埃及', away: '伊朗', venue: '李维斯体育场', city: '旧金山湾区', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 63, date: '2026-06-26', time: '06:00', group: 'Group H', home: '西班牙', away: '乌拉圭', venue: '硬石体育场', city: '迈阿密', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 64, date: '2026-06-26', time: '06:00', group: 'Group H', home: '佛得角', away: '沙特阿拉伯', venue: '卢门球场', city: '西雅图', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 65, date: '2026-06-26', time: '09:00', group: 'Group I', home: '法国', away: '伊拉克', venue: '大都会人寿体育场', city: '纽约/新泽西', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 66, date: '2026-06-26', time: '09:00', group: 'Group I', home: '塞内加尔', away: '挪威', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false },
+  { id: 61, date: '2026-06-26', time: '03:00', group: 'Group G', home: '比利时', away: '新西兰', venue: '箭头体育场', city: '堪萨斯城', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 62, date: '2026-06-26', time: '03:00', group: 'Group G', home: '埃及', away: '伊朗', venue: '李维斯体育场', city: '旧金山湾区', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 63, date: '2026-06-26', time: '06:00', group: 'Group H', home: '西班牙', away: '乌拉圭', venue: '硬石体育场', city: '迈阿密', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 64, date: '2026-06-26', time: '06:00', group: 'Group H', home: '佛得角', away: '沙特阿拉伯', venue: '卢门球场', city: '西雅图', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 65, date: '2026-06-26', time: '09:00', group: 'Group I', home: '法国', away: '伊拉克', venue: '大都会人寿体育场', city: '纽约/新泽西', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 66, date: '2026-06-26', time: '09:00', group: 'Group I', home: '塞内加尔', away: '挪威', venue: '吉列体育场', city: '波士顿', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
 
-  { id: 67, date: '2026-06-27', time: '03:00', group: 'Group J', home: '阿根廷', away: '约旦', venue: 'AT&T体育场', city: '达拉斯', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 68, date: '2026-06-27', time: '03:00', group: 'Group J', home: '阿尔及利亚', away: '奥地利', venue: 'NRG体育场', city: '休斯敦', country: '美国', homeScore: '', awayScore: '', isMajor: false },
-  { id: 69, date: '2026-06-27', time: '06:00', group: 'Group K', home: '葡萄牙', away: '哥伦比亚', venue: '奔驰体育场', city: '亚特兰大', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 70, date: '2026-06-27', time: '06:00', group: 'Group K', home: '民主刚果', away: '乌兹别克斯坦', venue: '阿兹特克体育场', city: '墨西哥城', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false },
-  { id: 71, date: '2026-06-27', time: '09:00', group: 'Group L', home: '英格兰', away: '巴拿马', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: true },
-  { id: 72, date: '2026-06-27', time: '09:00', group: 'Group L', home: '克罗地亚', away: '加纳', venue: '多伦多体育场', city: '多伦多', country: '加拿大', homeScore: '', awayScore: '', isMajor: false }
+  { id: 67, date: '2026-06-27', time: '03:00', group: 'Group J', home: '阿根廷', away: '约旦', venue: 'AT&T体育场', city: '达拉斯', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 68, date: '2026-06-27', time: '03:00', group: 'Group J', home: '阿尔及利亚', away: '奥地利', venue: 'NRG体育场', city: '休斯敦', country: '美国', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 69, date: '2026-06-27', time: '06:00', group: 'Group K', home: '葡萄牙', away: '哥伦比亚', venue: '奔驰体育场', city: '亚特兰大', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 70, date: '2026-06-27', time: '06:00', group: 'Group K', home: '民主刚果', away: '乌兹别克斯坦', venue: '阿兹特克体育场', city: '墨西哥城', country: '墨西哥', homeScore: '', awayScore: '', isMajor: false, locked: false },
+  { id: 71, date: '2026-06-27', time: '09:00', group: 'Group L', home: '英格兰', away: '巴拿马', venue: 'SoFi体育场', city: '洛杉矶', country: '美国', homeScore: '', awayScore: '', isMajor: true, locked: false },
+  { id: 72, date: '2026-06-27', time: '09:00', group: 'Group L', home: '克罗地亚', away: '加纳', venue: '多伦多体育场', city: '多伦多', country: '加拿大', homeScore: '', awayScore: '', isMajor: false, locked: false }
 ];
 
 const venuesData = [
@@ -735,66 +739,18 @@ const teamSquads = {
   ]},
 };
 
-// ==================== 2. 经典足球数学模型（泊松分布） ====================
-// 使用 Knuth 算法生成泊松分布的随机目标数
-function getPoissonGoal(lambda) {
-  const L = Math.exp(-lambda);
-  let k = 0;
-  let p = 1;
-  do {
-    k++;
-    p *= Math.random();
-  } while (p > L && k < 10);
-  return k - 1;
-}
-
-// 模拟单场比赛的核心科学引擎
-function simulateMatchRealistic(homeName, awayName, isNeutral = false, hostCountry = '') {
-  const homeMeta = teamMetadata[homeName] || { rank: 50, region: '欧洲', formBoost: 0 };
-  const awayMeta = teamMetadata[awayName] || { rank: 50, region: '欧洲', formBoost: 0 };
-
-  // 基础实力转换 (100 - 排名 + 状态修正) 作为攻击力系数
-  // formBoost: 基于近期赛事表现、阵容质量、东道主等因素的实力修正
-  const homeBoost = homeMeta.formBoost || 0;
-  const awayBoost = awayMeta.formBoost || 0;
-  const homePower = 100 - homeMeta.rank + homeBoost;
-  const awayPower = 100 - awayMeta.rank + awayBoost;
-  const powerDiff = homePower - awayPower; // 正数表示主队实力更强
-
-  // 科学期望进球基准 (xG)
-  let homeExp = 1.25 + (powerDiff * 0.012);
-  let awayExp = 1.25 - (powerDiff * 0.012);
-
-  // 地利因素：如果是东道主加成（美国、加拿大、墨西哥在美加墨境内算主场优势）
-  if (!isNeutral) {
-    if (homeMeta.code === 'USA' || homeMeta.code === 'MEX' || homeMeta.code === 'CAN') {
-      homeExp += 0.25; // 主场之利进球增幅
-    }
-    if (awayMeta.code === 'USA' || awayMeta.code === 'MEX' || awayMeta.code === 'CAN') {
-      awayExp += 0.10; // 虽然是客队，但在合办国亦有半主场声浪
-    }
-  }
-
-  // 大区加权校正 (例如南美/欧洲球队在非本土气候和传统战绩调整)
-  if (homeMeta.region === '南美洲' || homeMeta.region === '欧洲') homeExp += 0.1;
-  if (awayMeta.region === '南美洲' || awayMeta.region === '欧洲') awayExp += 0.1;
-
-  // 边界约束，确保 xG 指数处于合理范围 (0.5 ~ 3.5)
-  homeExp = Math.max(0.5, Math.min(3.5, homeExp));
-  awayExp = Math.max(0.5, Math.min(3.5, awayExp));
-
-  // 运用泊松分布输出拟真进球数
-  return {
-    homeScore: getPoissonGoal(homeExp),
-    awayScore: getPoissonGoal(awayExp)
-  };
-}
+// ==================== 2. 比赛模拟引擎（已提取至 src/engine/） ====================
+// getPoissonGoal / simulateMatchRealistic → src/engine/sim.ts（注入种子化 rng，可复现）
+// simulateTournament（整届纯函数）         → src/engine/tournament.ts
+// createRng（mulberry32 种子化 PRNG）       → src/engine/rng.ts
+// 注：teamMetadata/initialGroups/initialMatches 暂留于此（与 src/engine/data.ts 镜像），
+//     单一数据源合并为行为中立的后续清理。
 
 // ==================== 3. 主程序 ====================
 
 export default function App() {
   const [matches, setMatches] = useState(initialMatches);
-  const [activeTab, setActiveTab] = useState('schedule'); // schedule | groups | bracket | stats | venues | format
+  const [activeTab, setActiveTab] = useState('schedule'); // schedule | groups | bracket | stats | venues | format | archive
   const [filterCountry, setFilterCountry] = useState('All');
   const [filterGroup, setFilterGroup] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -807,7 +763,20 @@ export default function App() {
 
   // 批量模拟运行状态
   const [simCount, setSimCount] = useState(100);
+  const [batchSeed, setBatchSeed] = useState(42); // B2：可见/可输入种子 → 同种子同结果，推演可复现可分享
   const [isSimulating, setIsSimulating] = useState(false);
+
+  // B1：批量推演 Web Worker（后台线程跑蒙特卡洛，主线程零阻塞，支持 10000+ 次）。不支持 Worker 时降级主线程。
+  const batchWorkerRef = useRef<Worker | null>(null);
+  useEffect(() => {
+    if (typeof Worker === 'undefined') return; // SSR / 老旧环境 → 走主线程降级
+    try {
+      batchWorkerRef.current = new Worker(new URL('./src/engine/batch.worker.ts', import.meta.url), { type: 'module' });
+    } catch {
+      batchWorkerRef.current = null; // 构建期或加载失败 → 降级
+    }
+    return () => { batchWorkerRef.current?.terminate(); };
+  }, []);
   const [statsResults, setStatsResults] = useState(null);
   const [filterRegion, setFilterRegion] = useState('All');
 
@@ -828,6 +797,32 @@ export default function App() {
       return next;
     });
   };
+
+  // ==================== 模拟结果存档（localStorage 持久化）====================
+  // 统一管理「赛果快照」与「蒙特卡洛统计」两类命名存档，最多保留 30 条
+  const SNAPSHOTS_KEY = 'fifa2026_snapshots';
+  const [savedSnapshots, setSavedSnapshots] = useState(() => {
+    try {
+      const raw = localStorage.getItem(SNAPSHOTS_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      return Array.isArray(parsed) ? parsed.filter(s => s && s.id && s.type) : [];
+    } catch { return []; }
+  });
+
+  const persistSnapshots = (list) => {
+    try { localStorage.setItem(SNAPSHOTS_KEY, JSON.stringify((list || []).slice(0, 30))); }
+    catch { /* localStorage 配额超限或不可用，静默忽略 */ }
+  };
+  const writeSnapshots = (updater) => {
+    setSavedSnapshots(prev => {
+      const next = typeof updater === 'function' ? updater(prev) : updater;
+      persistSnapshots(next);
+      return next;
+    });
+  };
+
+  // 当前是否有可保存的赛果（小组比分或淘汰赛胜者）
+  const hasScenario = matches.some(m => m.homeScore !== '') || Object.keys(knockoutWinners).length > 0;
 
   // ==================== 同步真实赛果 ====================
   const handleSyncResults = async () => {
@@ -877,7 +872,8 @@ export default function App() {
         'uzbekistan': '乌兹别克斯坦', 'colombia': '哥伦比亚',
         'england': '英格兰', 'croatia': '克罗地亚', 'ghana': '加纳', 'panama': '巴拿马',
       };
-      Object.keys(extraNames).forEach(k => { nameMap[k] = extraNames[k]; });
+      // 注册时与查询采用相同的归一化（去空格+连字符），否则带连字符的 key 永远命中不了
+      Object.keys(extraNames).forEach(k => { nameMap[k.toLowerCase().replace(/[\s-]/g, '')] = extraNames[k]; });
 
       // 解析赛果并匹配到我们的比赛
       let updatedCount = 0;
@@ -903,7 +899,7 @@ export default function App() {
           if (found.homeScore !== String(homeScore) || found.awayScore !== String(awayScore)) {
             setMatches(prev => prev.map(m => {
               if (m.id === found.id) {
-                return { ...m, homeScore: String(homeScore), awayScore: String(awayScore) };
+                return { ...m, homeScore: String(homeScore), awayScore: String(awayScore), locked: true };
               }
               return m;
             }));
@@ -938,6 +934,24 @@ export default function App() {
 
   // 球队阵容
   const [squadTeam, setSquadTeam] = useState('');
+
+  // 主题切换
+  const [theme, setTheme] = useState(() => {
+    try { const saved = localStorage.getItem('fifa2026_theme'); return saved || 'dark'; }
+    catch { return 'dark'; }
+  });
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark';
+    setTheme(next);
+    document.documentElement.className = next;
+    try { localStorage.setItem('fifa2026_theme', next); } catch {}
+  };
+
+  // 主题初始化
+  useEffect(() => {
+    document.documentElement.className = theme;
+  }, []);
 
   // 倒计时
   useEffect(() => {
@@ -1116,131 +1130,33 @@ export default function App() {
 
   // 4. 一键深度泊松模拟（前台单次）
   const handleAutoSimulateOnce = () => {
+    const rng = createRng(batchSeed); // B2：单次模拟锚定可见种子 → 可复现
+    const lockedMap = {};
+    matches.forEach(m => {
+      if (m.locked && m.homeScore !== '' && m.awayScore !== '') {
+        lockedMap[m.id] = { homeScore: parseInt(m.homeScore, 10), awayScore: parseInt(m.awayScore, 10) };
+      }
+    });
+    const t = simulateTournament(rng, lockedMap);
+
+    // 回填小组赛比分（锁定场保持真实赛果）
     const simulatedGroup = matches.map(match => {
-      const res = simulateMatchRealistic(match.home, match.away);
-      return {
-        ...match,
-        homeScore: res.homeScore.toString(),
-        awayScore: res.awayScore.toString()
-      };
+      if (match.locked && match.homeScore !== '' && match.awayScore !== '') return match;
+      const sc = t.groupScores[match.id];
+      return { ...match, homeScore: String(sc.homeScore), awayScore: String(sc.awayScore) };
     });
     setMatches(simulatedGroup);
 
-    // 同步模拟淘汰赛阶段
+    // 淘汰赛结果 → 状态（id 方案 r32_1..r16_1..qf_1..sf_1..final 与原 useMemo 链一致）
     const newWinners = {};
     const newScores = {};
-
-    const resolveKo = (home, away, matchId) => {
-      if (!home || !away || home.includes('胜者') || away.includes('胜者')) return;
-      const res = simulateMatchRealistic(home, away, true); // 淘汰赛判定为中立场
-      let hs = res.homeScore;
-      let as = res.awayScore;
-      
-      // 避免决出平局
-      if (hs === as) {
-        const homeRank = teamMetadata[home]?.rank || 50;
-        const awayRank = teamMetadata[away]?.rank || 50;
-        // 实力高者点球胜出概率略高
-        const threshold = 0.5 + (awayRank - homeRank) * 0.003;
-        if (Math.random() < threshold) {
-          hs += 1; // 模拟点球大战
-        } else {
-          as += 1;
-        }
-      }
-
-      newScores[matchId] = { home: hs, away: as };
-      newWinners[matchId] = hs > as ? home : away;
-    };
-
-    // 独立计算并填注淘汰链条 (避免依赖状态更新延迟)
-    const tempStandings = {};
-    Object.keys(initialGroups).forEach(groupId => {
-      tempStandings[groupId] = initialGroups[groupId].teams.map(t => ({
-        name: t, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0, rank: teamMetadata[t]?.rank || 50
-      }));
+    const collect = (arr) => arr.forEach(m => {
+      newWinners[m.id] = m.winner;
+      newScores[m.id] = { home: m.homeScore, away: m.awayScore };
     });
-
-    simulatedGroup.forEach(m => {
-      const hs = parseInt(m.homeScore, 10);
-      const as = parseInt(m.awayScore, 10);
-      const list = tempStandings[m.group];
-      const hTeam = list.find(t => t.name === m.home);
-      const aTeam = list.find(t => t.name === m.away);
-      if (hTeam && aTeam) {
-        hTeam.played += 1; aTeam.played += 1;
-        hTeam.gf += hs; hTeam.ga += as;
-        aTeam.gf += as; aTeam.ga += hs;
-        hTeam.gd = hTeam.gf - hTeam.ga;
-        aTeam.gd = aTeam.gf - aTeam.ga;
-        if (hs > as) { hTeam.won += 1; hTeam.pts += 3; }
-        else if (hs < as) { aTeam.won += 1; aTeam.pts += 3; }
-        else { hTeam.drawn += 1; hTeam.pts += 1; aTeam.drawn += 1; aTeam.pts += 1; }
-      }
-    });
-
-    Object.keys(tempStandings).forEach(gid => {
-      tempStandings[gid].sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf || b.won - a.won || a.rank - b.rank);
-    });
-
-    const tempThirds = [];
-    Object.keys(tempStandings).forEach(gid => {
-      tempThirds.push({ ...tempStandings[gid][2], groupId: gid });
-    });
-    tempThirds.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf || b.won - a.won || a.rank - b.rank);
-    const top8T = tempThirds.slice(0, 8).map(t => t.name);
-
-    const w = {}; const r = {};
-    Object.keys(tempStandings).forEach(gid => {
-      const key = gid.split(' ')[1];
-      w[key] = tempStandings[gid][0].name;
-      r[key] = tempStandings[gid][1].name;
-    });
-
-    const tempR32 = [
-      { id: 'r32_1', home: w['A'], away: top8T[0] }, { id: 'r32_2', home: r['B'], away: r['F'] },
-      { id: 'r32_3', home: w['C'], away: top8T[4] }, { id: 'r32_4', home: w['D'], away: top8T[5] },
-      { id: 'r32_5', home: w['E'], away: r['A'] },   { id: 'r32_6', home: w['F'], away: r['C'] },
-      { id: 'r32_7', home: w['G'], away: top8T[1] }, { id: 'r32_8', home: w['H'], away: top8T[2] },
-      { id: 'r32_9', home: w['I'], away: r['E'] },   { id: 'r32_10', home: w['J'], away: r['D'] },
-      { id: 'r32_11', home: w['K'], away: r['G'] },  { id: 'r32_12', home: w['L'], away: r['H'] },
-      { id: 'r32_13', home: r['I'], away: r['J'] },  { id: 'r32_14', home: r['K'], away: r['L'] },
-      { id: 'r32_15', home: top8T[3], away: top8T[6] }, { id: 'r32_16', home: top8T[7], away: w['B'] }
-    ];
-
-    tempR32.forEach(m => resolveKo(m.home, m.away, m.id));
-
-    // R16
-    const r16Map = [
-      { id: 'r16_1', h: newWinners['r32_1'], a: newWinners['r32_2'] },
-      { id: 'r16_2', h: newWinners['r32_3'], a: newWinners['r32_4'] },
-      { id: 'r16_3', h: newWinners['r32_5'], a: newWinners['r32_6'] },
-      { id: 'r16_4', h: newWinners['r32_7'], a: newWinners['r32_8'] },
-      { id: 'r16_5', h: newWinners['r32_9'], a: newWinners['r32_10'] },
-      { id: 'r16_6', h: newWinners['r32_11'], a: newWinners['r32_12'] },
-      { id: 'r16_7', h: newWinners['r32_13'], a: newWinners['r32_14'] },
-      { id: 'r16_8', h: newWinners['r32_15'], a: newWinners['r32_16'] }
-    ];
-    r16Map.forEach(m => resolveKo(m.h, m.a, m.id));
-
-    // QF
-    const qfMap = [
-      { id: 'qf_1', h: newWinners['r16_1'], a: newWinners['r16_2'] },
-      { id: 'qf_2', h: newWinners['r16_3'], a: newWinners['r16_4'] },
-      { id: 'qf_3', h: newWinners['r16_5'], a: newWinners['r16_6'] },
-      { id: 'qf_4', h: newWinners['r16_7'], a: newWinners['r16_8'] }
-    ];
-    qfMap.forEach(m => resolveKo(m.h, m.a, m.id));
-
-    // SF
-    const sfMap = [
-      { id: 'sf_1', h: newWinners['qf_1'], a: newWinners['qf_2'] },
-      { id: 'sf_2', h: newWinners['qf_3'], a: newWinners['qf_4'] }
-    ];
-    sfMap.forEach(m => resolveKo(m.h, m.a, m.id));
-
-    // Final
-    resolveKo(newWinners['sf_1'], newWinners['sf_2'], 'final');
+    collect(t.r32); collect(t.r16); collect(t.qf); collect(t.sf);
+    newWinners['final'] = t.final.winner;
+    newScores['final'] = { home: t.final.homeScore, away: t.final.awayScore };
 
     setKnockoutWinners(newWinners);
     setKnockoutScores(newScores);
@@ -1250,207 +1166,30 @@ export default function App() {
   const handleBatchSimulation = () => {
     setIsSimulating(true);
 
-    // 利用 setTimeout 释放主线程避免卡死
-    setTimeout(() => {
-      // 初始化全48队的大盘数据统计桶
-      const tracker = {};
-      Object.keys(teamMetadata).forEach(name => {
-        tracker[name] = {
-          name,
-          qualifiedCount: 0,
-          r16Count: 0,
-          qfCount: 0,
-          sfCount: 0,
-          runnerUpCount: 0,
-          champCount: 0,
-          groupMatchesGoals: 0,
-          // 黑马追踪：FIFA排名20开外的球队走得更远
-          darkHorseRuns: 0
-        };
-      });
-
-      let totalGoalsSimmed = 0;
-      let upsetsRecorded = []; // 记录冷门战局：FIFA 排名相差 30 以上低位战胜高位
-
-      // 快速运行 N 次完整周期
-      for (let run = 0; run < simCount; run++) {
-        
-        // A. 模拟小组赛
-        const groupPoints = {};
-        Object.keys(initialGroups).forEach(gid => {
-          groupPoints[gid] = initialGroups[gid].teams.map(t => ({
-            name: t, pts: 0, gd: 0, gf: 0, ga: 0, won: 0, rank: teamMetadata[t]?.rank || 50
-          }));
-        });
-
-        initialMatches.forEach(m => {
-          const res = simulateMatchRealistic(m.home, m.away);
-          totalGoalsSimmed += (res.homeScore + res.awayScore);
-
-          // 记录冷门
-          const rankHome = teamMetadata[m.home]?.rank || 50;
-          const rankAway = teamMetadata[m.away]?.rank || 50;
-          if (Math.abs(rankHome - rankAway) >= 30) {
-            if ((res.homeScore > res.awayScore && rankHome > rankAway) || (res.awayScore > res.homeScore && rankAway > rankHome)) {
-              upsetsRecorded.push({
-                winner: res.homeScore > res.awayScore ? m.home : m.away,
-                loser: res.homeScore > res.awayScore ? m.away : m.home,
-                score: `${Math.max(res.homeScore, res.awayScore)}-${Math.min(res.homeScore, res.awayScore)}`
-              });
-            }
-          }
-
-          const pool = groupPoints[m.group];
-          const hTeam = pool.find(t => t.name === m.home);
-          const aTeam = pool.find(t => t.name === m.away);
-          if (hTeam && aTeam) {
-            hTeam.gf += res.homeScore; hTeam.ga += res.awayScore; hTeam.gd += (res.homeScore - res.awayScore);
-            aTeam.gf += res.awayScore; aTeam.ga += res.homeScore; aTeam.gd += (res.awayScore - res.homeScore);
-            if (res.homeScore > res.awayScore) { hTeam.pts += 3; hTeam.won += 1; }
-            else if (res.homeScore < res.awayScore) { aTeam.pts += 3; aTeam.won += 1; }
-            else { hTeam.pts += 1; aTeam.pts += 1; }
-          }
-        });
-
-        // 排序小组
-        Object.keys(groupPoints).forEach(gid => {
-          groupPoints[gid].sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf || b.won - a.won || a.rank - b.rank);
-        });
-
-        // 挑选小组第三
-        const thirds = [];
-        Object.keys(groupPoints).forEach(gid => {
-          thirds.push({ ...groupPoints[gid][2], groupId: gid });
-        });
-        thirds.sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf || b.won - a.won || a.rank - b.rank);
-        const top8ThirdNames = thirds.slice(0, 8).map(t => t.name);
-
-        // 输送至 32 强出线纪录
-        const w = {}; const r = {};
-        Object.keys(groupPoints).forEach(gid => {
-          const key = gid.split(' ')[1];
-          w[key] = groupPoints[gid][0].name;
-          r[key] = groupPoints[gid][1].name;
-          
-          // 前两名和出线第三名计数
-          tracker[groupPoints[gid][0].name].qualifiedCount++;
-          tracker[groupPoints[gid][1].name].qualifiedCount++;
-        });
-        top8ThirdNames.forEach(name => {
-          tracker[name].qualifiedCount++;
-        });
-
-        // B. 模拟淘汰赛阶段
-        const koResolve = (t1, t2) => {
-          const res = simulateMatchRealistic(t1, t2, true);
-          let hs = res.homeScore;
-          let as = res.awayScore;
-          if (hs === as) {
-            // 点球
-            const rank1 = teamMetadata[t1]?.rank || 50;
-            const rank2 = teamMetadata[t2]?.rank || 50;
-            return Math.random() < (0.5 + (rank2 - rank1) * 0.003) ? t1 : t2;
-          }
-          return hs > as ? t1 : t2;
-        };
-
-        // R32 战局
-        const r32WinnerList = [
-          koResolve(w['A'], top8ThirdNames[0]), koResolve(r['B'], r['F']),
-          koResolve(w['C'], top8ThirdNames[4]), koResolve(w['D'], top8ThirdNames[5]),
-          koResolve(w['E'], r['A']),           koResolve(w['F'], r['C']),
-          koResolve(w['G'], top8ThirdNames[1]), koResolve(w['H'], top8ThirdNames[2]),
-          koResolve(w['I'], r['E']),           koResolve(w['J'], r['D']),
-          koResolve(w['K'], r['G']),           koResolve(w['L'], r['H']),
-          koResolve(r['I'], r['J']),           koResolve(r['K'], r['L']),
-          koResolve(top8ThirdNames[3], top8ThirdNames[6]), koResolve(top8ThirdNames[7], w['B'])
-        ];
-
-        // R16
-        const r16WinnerList = [];
-        for (let i = 0; i < 16; i += 2) {
-          const winner = koResolve(r32WinnerList[i], r32WinnerList[i + 1]);
-          r16WinnerList.push(winner);
-          tracker[winner].r16Count++;
-        }
-
-        // QF
-        const qfWinnerList = [];
-        for (let i = 0; i < 8; i += 2) {
-          const winner = koResolve(r16WinnerList[i], r16WinnerList[i + 1]);
-          qfWinnerList.push(winner);
-          tracker[winner].qfCount++;
-        }
-
-        // SF
-        const sfWinnerList = [];
-        for (let i = 0; i < 4; i += 2) {
-          const winner = koResolve(qfWinnerList[i], qfWinnerList[i + 1]);
-          sfWinnerList.push(winner);
-          tracker[winner].sfCount++;
-        }
-
-        // Final
-        const champ = koResolve(sfWinnerList[0], sfWinnerList[1]);
-        const runnerUp = champ === sfWinnerList[0] ? sfWinnerList[1] : sfWinnerList[0];
-
-        tracker[champ].champCount++;
-        tracker[runnerUp].runnerUpCount++;
-
-        // 黑马追踪：FIFA排名20以外 进入八强及以上 = 黑马表现
-        const deepRunners = [...qfWinnerList];
-        deepRunners.forEach(team => {
-          const teamRank = teamMetadata[team]?.rank || 50;
-          if (teamRank > 20) {
-            tracker[team].darkHorseRuns++;
-          }
-        });
+    // 预构建锁定比赛查找表（真实赛果不在每次循环中重新模拟）
+    const lockedMap = {};
+    matches.forEach(m => {
+      if (m.locked && m.homeScore !== '' && m.awayScore !== '') {
+        lockedMap[m.id] = { homeScore: parseInt(m.homeScore, 10), awayScore: parseInt(m.awayScore, 10) };
       }
+    });
 
-      // 计算平均值和归一化比率
-      const normalized = Object.keys(tracker).map(name => {
-        const t = tracker[name];
-        return {
-          name,
-          flag: teamMetadata[name]?.flag || '🏳️',
-          rank: teamMetadata[name]?.rank || 50,
-          region: teamMetadata[name]?.region || '欧洲',
-          formBoost: teamMetadata[name]?.formBoost || 0,
-          qualifiedPct: ((t.qualifiedCount / simCount) * 100).toFixed(1),
-          r16Pct: ((t.r16Count / simCount) * 100).toFixed(1),
-          qfPct: ((t.qfCount / simCount) * 100).toFixed(1),
-          sfPct: ((t.sfCount / simCount) * 100).toFixed(1),
-          finalPct: (((t.champCount + t.runnerUpCount) / simCount) * 100).toFixed(1),
-          champPct: ((t.champCount / simCount) * 100).toFixed(1),
-          darkHorsePct: ((t.darkHorseRuns / simCount) * 100).toFixed(1),
-          darkHorseRuns: t.darkHorseRuns
-        };
-      });
-
-      // 按夺冠率降序排序，确保夺冠前5动态变化
-      normalized.sort((a, b) => parseFloat(b.champPct) - parseFloat(a.champPct) || a.rank - b.rank);
-
-      // 提取冷门之最
-      const upsetSummary = upsetsRecorded.reduce((acc, current) => {
-        const key = `${current.winner} 胜 ${current.loser}`;
-        acc[key] = (acc[key] || 0) + 1;
-        return acc;
-      }, {});
-
-      const sortedUpsets = Object.keys(upsetSummary)
-        .map(k => ({ match: k, count: upsetSummary[k] }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 3);
-
-      setStatsResults({
-        teams: normalized,
-        avgGoals: (totalGoalsSimmed / (simCount * 72)).toFixed(2), // 72场小组赛平均
-        totalSims: simCount,
-        topUpsets: sortedUpsets
-      });
-
+    const finish = (result) => {
+      setStatsResults(result);
       setIsSimulating(false);
-    }, 150);
+      // 每次预测后自动滚动到新随机种子（下次预测用）；本次结果仍带其种子（概要头「种子 #N」），可手动填回以复现
+      setBatchSeed(Math.floor(Math.random() * 1e9));
+    };
+
+    const worker = batchWorkerRef.current;
+    if (worker) {
+      // B1：后台线程跑完整 N 次推演，主线程零阻塞 → 支持 10000+ 次
+      worker.onmessage = (e) => finish(e.data);
+      worker.postMessage({ seed: batchSeed, count: simCount, lockedMap });
+    } else {
+      // 降级路径：主线程同步跑（setTimeout 释放一帧避免硬卡），逻辑与 worker 同一份 runBatchSimulation
+      setTimeout(() => finish(runBatchSimulation(batchSeed, simCount, lockedMap)), 150);
+    }
   };
 
   // ==================== 6. 球队之旅模拟引擎 ====================
@@ -1500,6 +1239,7 @@ export default function App() {
       let bestFinishIdx = -1; // 0=r32, 1=r16, 2=qf, 3=sf, 4=final, 5=champ
 
       for (let run = 0; run < N; run++) {
+        const rng = createRng(Math.floor(Math.random() * 1e9) + run);
         // A. 模拟小组赛
         const gp = {};
         Object.keys(initialGroups).forEach(gid => {
@@ -1509,7 +1249,7 @@ export default function App() {
         });
 
         initialMatches.forEach(m => {
-          const res = simulateMatchRealistic(m.home, m.away);
+          const res = simulateMatchRealistic(rng, m.home, m.away);
           const pool = gp[m.group];
           const h = pool.find(t => t.name === m.home);
           const a = pool.find(t => t.name === m.away);
@@ -1605,7 +1345,7 @@ export default function App() {
         });
 
         const koResolve = (t1, t2) => {
-          const res = simulateMatchRealistic(t1, t2, true);
+          const res = simulateMatchRealistic(rng, t1, t2, true);
           let hs = res.homeScore;
           let as = res.awayScore;
           let viaPenalty = false;
@@ -1613,7 +1353,7 @@ export default function App() {
             viaPenalty = true;
             const rank1 = teamMetadata[t1]?.rank || 50;
             const rank2 = teamMetadata[t2]?.rank || 50;
-            return { winner: Math.random() < (0.5 + (rank2 - rank1) * 0.003) ? t1 : t2, score: `${hs}-${as}`, penalty: true };
+            return { winner: rng.next() < (0.5 + (rank2 - rank1) * 0.003) ? t1 : t2, score: `${hs}-${as}`, penalty: true };
           }
           return { winner: hs > as ? t1 : t2, score: `${hs}-${as}`, penalty: false };
         };
@@ -1939,10 +1679,100 @@ export default function App() {
   };
 
   const handleResetScores = () => {
-    const reset = matches.map(m => ({ ...m, homeScore: '', awayScore: '' }));
+    const reset = matches.map(m => ({ ...m, homeScore: '', awayScore: '', locked: false }));
     setMatches(reset);
     setKnockoutScores({});
     setKnockoutWinners({});
+  };
+
+  // ==================== 模拟结果存档操作 ====================
+  const fmtStamp = () => {
+    const d = new Date();
+    const p = n => String(n).padStart(2, '0');
+    return `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+  };
+
+  // 保存「单次智能模拟」的完整赛果快照
+  const saveScenarioSnapshot = () => {
+    if (!hasScenario) return;
+    const champ = knockoutWinners['final'] || '赛果';
+    const name = window.prompt('为这份赛果方案命名：', `🏆${champ} · ${fmtStamp()}`);
+    if (name === null) return;               // 用户取消
+    const trimmed = name.trim();
+    if (!trimmed) return;                    // 空名取消
+    const scores = {};
+    matches.forEach(m => {
+      if (m.homeScore !== '' || m.awayScore !== '' || m.locked) {
+        scores[m.id] = { homeScore: m.homeScore, awayScore: m.awayScore, locked: !!m.locked };
+      }
+    });
+    const snap = {
+      v: 1,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      type: 'scenario', name: trimmed, createdAt: Date.now(),
+      scenarioData: { scores, knockoutWinners: { ...knockoutWinners }, knockoutScores: { ...knockoutScores } },
+    };
+    writeSnapshots(prev => [snap, ...prev]);
+  };
+
+  // 保存「蒙特卡洛批量推演」的统计结果
+  const saveStatsSnapshot = () => {
+    if (!statsResults) return;
+    const top = statsResults.teams?.[0];
+    const defaultName = `📊${statsResults.totalSims}次推演${top ? ` · ${top.flag}${top.name} ${top.champPct}%` : ''} · ${fmtStamp()}`;
+    const name = window.prompt('为这份统计推演命名：', defaultName);
+    if (name === null) return;
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const snap = {
+      v: 1,
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      type: 'stats', name: trimmed, createdAt: Date.now(),
+      statsData: statsResults,
+    };
+    writeSnapshots(prev => [snap, ...prev]);
+  };
+
+  // 加载一份存档：赛果快照还原比分+淘汰赛并跳到 32 强树；统计直接回填并跳到统计 Tab
+  const loadSnapshot = (snap) => {
+    if (!snap) return;
+    if (snap.type === 'scenario' && snap.scenarioData) {
+      const sd = snap.scenarioData;
+      const restored = initialMatches.map(m => {
+        const s = sd.scores[m.id];
+        return s ? { ...m, homeScore: s.homeScore ?? '', awayScore: s.awayScore ?? '', locked: !!s.locked } : m;
+      });
+      setMatches(restored);
+      setKnockoutWinners(sd.knockoutWinners || {});
+      setKnockoutScores(sd.knockoutScores || {});
+      setActiveTab('bracket');
+    } else if (snap.type === 'stats' && snap.statsData) {
+      setStatsResults(snap.statsData);
+      setActiveTab('stats');
+    }
+  };
+
+  const renameSnapshot = (id) => {
+    const target = savedSnapshots.find(s => s.id === id);
+    if (!target) return;
+    const name = window.prompt('重命名存档：', target.name);
+    if (name === null) return;
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    writeSnapshots(prev => prev.map(s => s.id === id ? { ...s, name: trimmed } : s));
+  };
+
+  const deleteSnapshot = (id) => {
+    const target = savedSnapshots.find(s => s.id === id);
+    if (!target) return;
+    if (!window.confirm(`确定删除存档「${target.name}」吗？`)) return;
+    writeSnapshots(prev => prev.filter(s => s.id !== id));
+  };
+
+  const clearAllSnapshots = () => {
+    if (savedSnapshots.length === 0) return;
+    if (!window.confirm(`确定清空全部 ${savedSnapshots.length} 个存档吗？此操作不可撤销。`)) return;
+    writeSnapshots(() => []);
   };
 
   const filteredMatches = useMemo(() => {
@@ -2079,6 +1909,19 @@ export default function App() {
                 🏟️ 场馆指南
               </button>
               <button
+                onClick={() => setActiveTab('archive')}
+                className={`relative px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
+                  activeTab === 'archive' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-amber-400 hover:bg-slate-900'
+                }`}
+              >
+                📚 我的存档
+                {savedSnapshots.length > 0 && (
+                  <span className="ml-0.5 min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-amber-500 text-slate-950 text-[10px] font-black">
+                    {savedSnapshots.length}
+                  </span>
+                )}
+              </button>
+              <button
                 onClick={() => setActiveTab('format')}
                 className={`px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center gap-1.5 ${
                   activeTab === 'format' ? 'bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900'
@@ -2090,11 +1933,30 @@ export default function App() {
 
             <div className="flex items-center gap-2">
               <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg text-lg hover:bg-slate-800 transition-all"
+                title={theme === 'dark' ? '切换亮色模式' : '切换暗色模式'}
+              >
+                {theme === 'dark' ? '☀️' : '🌙'}
+              </button>
+              <button
                 onClick={handleAutoSimulateOnce}
                 className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-teal-500/10 border border-teal-500/30 text-teal-400 hover:bg-teal-500 hover:text-slate-950 transition-all"
                 title="根据球队实力期望值智能模拟小组和淘汰赛"
               >
                 ⚡ 智能模拟单次
+              </button>
+              <button
+                onClick={saveScenarioSnapshot}
+                disabled={!hasScenario}
+                title={hasScenario ? '把当前赛果（比分+淘汰赛+冠军）存档到本地' : '先运行一次智能模拟，才有赛果可保存'}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all ${
+                  hasScenario
+                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-slate-950'
+                    : 'bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed opacity-60'
+                }`}
+              >
+                💾 保存方案
               </button>
               <button
                 onClick={handleResetScores}
@@ -2137,8 +1999,25 @@ export default function App() {
                     <option value={50}>50次 快速模拟</option>
                     <option value={100}>100次 深度研究</option>
                     <option value={500}>500次 大样本推演</option>
-                    <option value={1000}>1000次 顶尖分析(较耗时)</option>
+                    <option value={1000}>1000次 顶尖分析</option>
+                    <option value={5000}>5000次 极致推演 (Worker 后台)</option>
+                    <option value={10000}>10000次 机构级 (Worker 后台)</option>
                   </select>
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-slate-950 px-3 py-1.5 rounded-xl border border-slate-800" title="每次预测后自动换新随机种子；概要头显示本次所用种子，手动填回即可复现。点 🎲 立即换一个。">
+                  <span className="text-xs text-slate-400">种子:</span>
+                  <input
+                    type="number"
+                    value={batchSeed}
+                    onChange={(e) => setBatchSeed(parseInt(e.target.value) || 0)}
+                    className="w-20 bg-slate-900 text-xs border border-slate-700 rounded p-1 text-teal-300 font-mono focus:outline-none focus:border-teal-500"
+                  />
+                  <button
+                    onClick={() => setBatchSeed(Math.floor(Math.random() * 1e9))}
+                    title="换一个随机种子"
+                    className="text-xs px-1.5 py-0.5 rounded hover:bg-slate-800 text-slate-400 hover:text-amber-400 transition-colors"
+                  >🎲</button>
                 </div>
 
                 <button
@@ -2151,6 +2030,19 @@ export default function App() {
                   }`}
                 >
                   {isSimulating ? '🔄 矩阵运算中...' : '🏁 启动批量预测推演'}
+                </button>
+
+                <button
+                  onClick={saveStatsSnapshot}
+                  disabled={!statsResults}
+                  title={statsResults ? '把当前统计推演结果存档到本地' : '先运行一次批量推演，才有结果可保存'}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold border transition-all ${
+                    statsResults
+                      ? 'bg-amber-500/10 border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-slate-950'
+                      : 'bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed opacity-60'
+                  }`}
+                >
+                  💾 存档统计
                 </button>
               </div>
             </div>
@@ -2198,8 +2090,13 @@ export default function App() {
 
                   {/* 数据大盘总结摘要 */}
                   <div className="bg-slate-900/40 border border-slate-800 rounded-2xl p-5 space-y-4">
-                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                      📋 批量推演赛事概要
+                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                      <span>📋 批量推演赛事概要</span>
+                      {statsResults.seed != null && (
+                        <span className="text-[10px] font-mono normal-case text-teal-500/70 tracking-normal" title="本次推演种子——记录它即可复现完全相同的结果">
+                          种子 #{statsResults.seed}
+                        </span>
+                      )}
                     </h3>
                     
                     <div className="grid grid-cols-2 gap-3 text-center">
@@ -2310,11 +2207,11 @@ export default function App() {
                           <tr>
                             <th className="py-2 font-medium w-12">Rank</th>
                             <th className="py-2 font-medium">球队</th>
-                            <th className="py-2 font-medium text-center w-20">小组出线 %</th>
+                            <th className="py-2 font-medium text-center w-20" title="± 为 95% 置信区间半宽（蒙特卡洛样本误差）">小组出线 %</th>
                             <th className="py-2 font-medium text-center w-16">16强 %</th>
                             <th className="py-2 font-medium text-center w-16">4强 %</th>
                             <th className="py-2 font-medium text-center w-16">决赛 %</th>
-                            <th className="py-2 font-semibold text-center w-20 text-amber-400">夺冠率 %</th>
+                            <th className="py-2 font-semibold text-center w-20 text-amber-400" title="± 为 95% 置信区间半宽（蒙特卡洛样本误差）">夺冠率 %</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -2325,11 +2222,21 @@ export default function App() {
                                 <span className="mr-1.5 text-base">{team.flag}</span>
                                 <span>{team.name}</span>
                               </td>
-                              <td className="py-2.5 text-center font-semibold text-emerald-400">{team.qualifiedPct}%</td>
+                              <td className="py-2.5 text-center font-semibold text-emerald-400">
+                                <div>{team.qualifiedPct}%</div>
+                                {team.qualifiedCi && (
+                                  <div className="text-[9px] font-normal text-emerald-600/60 leading-tight">±{team.qualifiedCi}</div>
+                                )}
+                              </td>
                               <td className="py-2.5 text-center text-teal-400">{team.r16Pct}%</td>
                               <td className="py-2.5 text-center text-slate-300">{team.sfPct}%</td>
                               <td className="py-2.5 text-center text-slate-300">{team.finalPct}%</td>
-                              <td className="py-2.5 text-center font-black text-amber-400 bg-amber-500/5">{team.champPct}%</td>
+                              <td className="py-2.5 text-center font-black text-amber-400 bg-amber-500/5">
+                                <div>{team.champPct}%</div>
+                                {team.champCi && parseFloat(team.champPct) > 0 && (
+                                  <div className="text-[9px] font-normal text-amber-600/70 leading-tight">±{team.champCi}</div>
+                                )}
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -2467,24 +2374,39 @@ export default function App() {
                         <div className="text-[10px] text-slate-500">FIFA #{homeMeta.rank}</div>
                       </div>
 
-                      <div className="col-span-4 flex items-center justify-center gap-1">
-                        <input
-                          type="text"
-                          maxLength={2}
-                          value={match.homeScore}
-                          onChange={(e) => handleScoreChange(match.id, 'home', e.target.value)}
-                          placeholder="-"
-                          className="w-10 h-10 rounded-lg bg-slate-950 border border-slate-800 text-center font-black text-lg text-emerald-400 focus:outline-none focus:border-emerald-500"
-                        />
-                        <span className="text-slate-600 font-bold">:</span>
-                        <input
-                          type="text"
-                          maxLength={2}
-                          value={match.awayScore}
-                          onChange={(e) => handleScoreChange(match.id, 'away', e.target.value)}
-                          placeholder="-"
-                          className="w-10 h-10 rounded-lg bg-slate-950 border border-slate-800 text-center font-black text-lg text-emerald-400 focus:outline-none focus:border-emerald-500"
-                        />
+                      <div className="col-span-4 flex flex-col items-center justify-center gap-0.5">
+                        <div className="flex items-center justify-center gap-1">
+                          <input
+                            type="text"
+                            maxLength={2}
+                            value={match.homeScore}
+                            onChange={(e) => handleScoreChange(match.id, 'home', e.target.value)}
+                            placeholder="-"
+                            readOnly={match.locked}
+                            className={`w-10 h-10 rounded-lg text-center font-black text-lg focus:outline-none ${
+                              match.locked
+                                ? 'bg-teal-500/10 border border-teal-500/30 text-teal-400 cursor-default'
+                                : 'bg-slate-950 border border-slate-800 text-emerald-400 focus:border-emerald-500'
+                            }`}
+                          />
+                          <span className="text-slate-600 font-bold">:</span>
+                          <input
+                            type="text"
+                            maxLength={2}
+                            value={match.awayScore}
+                            onChange={(e) => handleScoreChange(match.id, 'away', e.target.value)}
+                            placeholder="-"
+                            readOnly={match.locked}
+                            className={`w-10 h-10 rounded-lg text-center font-black text-lg focus:outline-none ${
+                              match.locked
+                                ? 'bg-teal-500/10 border border-teal-500/30 text-teal-400 cursor-default'
+                                : 'bg-slate-950 border border-slate-800 text-emerald-400 focus:border-emerald-500'
+                            }`}
+                          />
+                        </div>
+                        {match.locked && match.homeScore !== '' && (
+                          <span className="text-[10px] text-teal-500/70 font-medium">🔒 真实赛果</span>
+                        )}
                       </div>
 
                       <div className="col-span-4 text-center">
@@ -3285,6 +3207,119 @@ export default function App() {
               );
             })()}
 
+          </div>
+        )}
+
+        {/* TAB: 我的存档 */}
+        {activeTab === 'archive' && (
+          <div className="space-y-6">
+
+            {/* 标题栏 */}
+            <div className="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-xl">
+              <div>
+                <h2 className="text-lg font-bold text-amber-400 flex items-center gap-2">📚 我的模拟存档</h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  保存的赛果方案与蒙特卡洛统计推演。数据存于浏览器本地（localStorage），刷新不丢失，最多保留 30 条。
+                </p>
+              </div>
+              <button
+                onClick={clearAllSnapshots}
+                disabled={savedSnapshots.length === 0}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all whitespace-nowrap ${
+                  savedSnapshots.length > 0
+                    ? 'bg-rose-500/10 border-rose-500/30 text-rose-400 hover:bg-rose-500 hover:text-slate-950'
+                    : 'bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed opacity-60'
+                }`}
+              >
+                🗑️ 全部清空
+              </button>
+            </div>
+
+            {/* 空状态 */}
+            {savedSnapshots.length === 0 ? (
+              <div className="bg-slate-900/40 border border-dashed border-slate-700 rounded-2xl p-12 text-center">
+                <div className="text-5xl mb-3">🗂️</div>
+                <p className="text-slate-300 font-semibold">还没有任何存档</p>
+                <p className="text-xs text-slate-500 mt-2 leading-relaxed max-w-md mx-auto">
+                  运行「⚡ 智能模拟单次」后点「💾 保存方案」，或在「📊 AI 大数据统计预测」里点「💾 存档统计」，即可在这里查看、加载与对比。
+                </p>
+              </div>
+            ) : (
+              [
+                { type: 'scenario', label: '🏆 赛果快照', desc: '智能模拟的完整赛果（比分 + 淘汰赛 + 冠军）' },
+                { type: 'stats', label: '📊 蒙特卡洛统计', desc: '批量推演的夺冠概率与黑马预测' },
+              ].map(sec => {
+                const items = savedSnapshots.filter(s => s.type === sec.type).sort((a, b) => b.createdAt - a.createdAt);
+                if (items.length === 0) return null;
+                return (
+                  <div key={sec.type} className="space-y-3">
+                    <div className="flex items-baseline gap-2 flex-wrap">
+                      <h3 className="text-sm font-bold text-slate-200">{sec.label}</h3>
+                      <span className="text-xs text-slate-500">{sec.desc} · 共 {items.length} 个</span>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {items.map(s => {
+                        const dt = new Date(s.createdAt);
+                        const dateStr = `${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')} ${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`;
+                        return (
+                          <div key={s.id} className="bg-slate-900/60 border border-slate-800 rounded-2xl p-4 space-y-3">
+                            <div className="min-w-0">
+                              <div className="font-bold text-slate-100 truncate">{s.name}</div>
+                              <div className="text-[11px] text-slate-500">💾 {dateStr}</div>
+                            </div>
+
+                            {s.type === 'scenario' && s.scenarioData ? (() => {
+                              const kw = s.scenarioData.knockoutWinners || {};
+                              const champ = kw['final'];
+                              const cnt = Object.keys(s.scenarioData.scores || {}).length;
+                              return (
+                                <div className="text-xs text-slate-300 space-y-1 bg-slate-950/60 rounded-lg p-2.5 border border-slate-800">
+                                  <div>🥇 冠军：{champ ? <span className="font-bold text-amber-400">{teamMetadata[champ]?.flag} {champ}</span> : <span className="text-slate-500">未决出</span>}</div>
+                                  <div className="text-slate-400">🏟️ 记录 {cnt} 场比分 ｜ 决赛：{kw['sf_1'] || '—'} vs {kw['sf_2'] || '—'}</div>
+                                </div>
+                              );
+                            })() : s.statsData ? (() => {
+                              const top3 = (s.statsData.teams || []).slice(0, 3);
+                              return (
+                                <div className="text-xs text-slate-300 space-y-1 bg-slate-950/60 rounded-lg p-2.5 border border-slate-800">
+                                  <div>🏁 {s.statsData.totalSims} 次推演 ｜ 场均 {s.statsData.avgGoals} 球</div>
+                                  <div className="flex flex-wrap gap-x-3 gap-y-0.5">
+                                    {top3.map((t, i) => (
+                                      <span key={t.name}>{['🥇', '🥈', '🥉'][i]} {t.flag}{t.name} {t.champPct}%</span>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })() : null}
+
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => loadSnapshot(s)}
+                                className="flex-1 px-3 py-1.5 rounded-lg text-xs font-bold bg-teal-500/10 border border-teal-500/30 text-teal-400 hover:bg-teal-500 hover:text-slate-950 transition-all"
+                              >
+                                📂 加载
+                              </button>
+                              <button
+                                onClick={() => renameSnapshot(s.id)}
+                                className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all"
+                              >
+                                ✏️ 重命名
+                              </button>
+                              <button
+                                onClick={() => deleteSnapshot(s.id)}
+                                className="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 border border-slate-800 text-slate-400 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30 transition-all"
+                              >
+                                🗑️ 删除
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         )}
 

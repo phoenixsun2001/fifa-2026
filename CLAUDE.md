@@ -4,20 +4,30 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-2026 FIFA World Cup (美加墨世界杯) interactive simulator — a single-file React TSX application with Poisson-based match prediction and Monte Carlo batch simulation. The entire app lives in `2026.tsx`.
+2026 FIFA World Cup (美加墨世界杯) interactive simulator — Vite + React 18 + TypeScript SPA. The prediction engine is fully extracted into a modular, tested `src/engine/` layer (~45 vitest tests); `2026.tsx` is the UI/state layer. Originally single-file, refactored across Phase 0–3 (see `docs/预测引擎优化路线图.md`).
 
 ## Architecture
 
-Single-file SPA (~1580 lines) with no build tooling, no package.json, no bundler. Designed to run in a React + Tailwind CSS environment (e.g. imported into a Vite/Next.js host or a sandbox like CodeSandbox/StackBlitz).
+### Engine modules (`src/engine/`) — the prediction core
 
-### Key sections within `2026.tsx`:
+| Module | Role |
+|---|---|
+| `rng.ts` | mulberry32 seedable PRNG (reproducible runs) |
+| `data.ts` | teamMetadata / initialGroups / initialMatches |
+| `squads.ts` | 48-team squad rosters (single source of truth) |
+| `ratings.ts` | club-tier → per-team attack/defense (normalized to mean 1.0) |
+| `sim.ts` | `simulateMatchRealistic()` — Dixon-Coles joint sampling + τ low-score correction; λ = 1.35 × attack_i / defense_j |
+| `tournament.ts` | `simulateTournament(rng, lockedMap)` — full-cup pure function |
+| `batch.ts` | `runBatchSimulation(seed, count, lockedMap)` — Monte Carlo aggregation + Wilson score ±95% CI |
+| `batch.worker.ts` | off-main-thread batch runner (up to 10,000 runs) |
 
-1. **Data layer** (lines 1–122): Hardcoded `teamMetadata` (48 teams with FIFA rank, region, flag), `initialGroups` (12 groups A–L), `initialMatches` (30 group-stage matches with Beijing time), `venuesData`.
-2. **Simulation engine** (lines 124–174): `getPoissonGoal(lambda)` — Knuth algorithm for Poisson random goals; `simulateMatchRealistic()` — converts FIFA rank delta into xG expectations with home advantage and region weighting.
-3. **React state & computed data** (lines 178–754): `App` component with tabs (schedule / groups / bracket / stats / venues / format). Core `useMemo` chains: `groupStandings` → `thirdPlaceRankings` → `top8ThirdTeams` → `qualifiedTeams` → `r32Matches` → `r16Matches` → `qfMatches` → `sfMatches` → `finalMatch`.
-4. **Batch Monte Carlo engine** (lines 503–691): `handleBatchSimulation()` runs N full tournament simulations (default 100, up to 1000) in a `setTimeout` to avoid blocking the UI thread. Tracks qualification/advancement rates per team and top upsets.
-5. **JSX rendering** (lines 756–1514): Tab-based UI with schedule cards, group tables, 5-column knockout bracket, stats dashboard, venue cards, and format rules.
-6. **KnockoutMatchCard** (lines 1517–1579): Reusable bracket card with click-to-advance and manual score input.
+### Key sections within `2026.tsx` (UI layer):
+
+1. **Data**: `teamMetadata`, `initialGroups`, `initialMatches`, `venuesData` (mirrored in `src/engine/data.ts`). `teamSquads` stays inline here for the squad-browse tab (engine copy in `squads.ts`).
+2. **React state & computed data**: `App` component with tabs (schedule / groups / bracket / stats / venues / squads / format). Core `useMemo` chains: `groupStandings` → `thirdPlaceRankings` → `top8ThirdTeams` → `qualifiedTeams` → `r32Matches` → … → `finalMatch`.
+3. **Batch simulation**: `handleBatchSimulation()` posts `{seed, count, lockedMap}` to `batch.worker.ts`; falls back to inline `runBatchSimulation` if Worker unavailable. Seed auto-rolls to a new random value after each run.
+4. **JSX rendering**: Tab-based UI — schedule cards, group tables, knockout bracket, stats dashboard, venue/squad cards.
+5. **KnockoutMatchCard**: Reusable bracket card with click-to-advance and manual score input.
 
 ### Data flow:
 

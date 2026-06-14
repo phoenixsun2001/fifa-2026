@@ -30,20 +30,21 @@ An interactive simulator for the **2026 FIFA World Cup** (USA/Canada/Mexico), fe
 | 📅 **Schedule** | 72 group-stage matches with Beijing time (CST), venue & city info, ⭐ match favorites, 📡 live result sync |
 | 🏆 **Group Standings** | 12 groups × 4 teams, live standings with FIFA tiebreaker rules |
 | 🌿 **Knockout Bracket** | 9-column left/right half layout — R32 → R16 → QF → SF → Final → Champion |
-| 📊 **AI Statistics** | Monte Carlo batch simulation (up to 1000 runs) — champion odds, dark horse tracker, upset statistics |
+| 📊 **AI Statistics** | Monte Carlo batch simulation (up to 10,000 runs via Web Worker) — champion odds w/ ±95% CI, dark horse tracker, upset statistics |
 | 🔮 **Team Journey** | Pick any team → deep-dive simulation with group analysis, round-by-round path, and AI-generated insights |
 | 📋 **Squads** | 48-team roster browser — key players with position, shirt number, and club info |
 | 🏟️ **Venues** | 16 stadiums across USA (11), Canada (2), Mexico (3) |
 | ℹ️ **Format Rules** | 48-team expanded format, third-place ranking tiebreakers |
 
-### 🔬 Simulation Engine
+### 🔬 Prediction Engine (modular, tested — `src/engine/`)
 
-- **Match prediction**: Converts FIFA ranking delta into expected goals (xG) using Poisson distribution (Knuth algorithm)
-- **Home advantage**: Host nation bonus for USA/CAN/MEX matches
-- **Region weighting**: Strength adjustment for South American and European teams
-- **formBoost**: Performance modifier based on recent form and squad quality (e.g., Norway +15, Japan +10)
-- **Penalty shootout**: Rank-weighted probability for knockout draws
-- **Batch simulation**: Runs N full tournaments (up to 1000) with per-team tracking across all stages
+- **Attack/Defense separation (Phase 3)**: Per-team `attack`/`defense` derived from squad data — player quality proxied by **club prestige tier** (5=elite UCL → 1=domestic), aggregated by position (FW/MF→attack, DF/GK→defense), normalized to mean 1.0. So Norway (Haaland, elite FW) plays attack-strong while Morocco (Hakimi, elite DF) plays defense-strong
+- **Dixon-Coles model (Phase 2)**: Replaces independent double-Poisson with a **joint score distribution + τ low-score correction** — fixes the underestimation of 0-0/1-1 draws and overestimation of 1-0/0-1. λ = 1.35 × attack_i / defense_j
+- **Seedable & reproducible (Phase 1)**: mulberry32 PRNG → same seed = same result; seed shown per run, auto-rolls after each prediction
+- **Web Worker batch (Phase 1)**: Up to **10,000 full tournaments** off the main thread, zero UI freeze
+- **Wilson score ±95% CI** on all champion/qualification odds (not naive Wald)
+- **Home advantage** (USA/CAN/MEX) and **region weighting** (South America/Europe)
+- **45 unit tests** (vitest): PRNG, standings, FIFA R32 pairing, Dixon-Coles correlation, attack/defense derivation
 
 ### ⭐ Match Favorites & Live Sync
 
@@ -80,17 +81,19 @@ npm run build
 
 ### 🏗️ Architecture
 
-Single-file SPA (`2026.tsx`, ~2600 lines) with no external state management.
+React SPA with a modular, fully-tested prediction engine extracted into `src/engine/`:
 
 ```
-2026.tsx
-├── Data Layer (teams, groups, matches, venues, squad rosters)
-├── Simulation Engine (Poisson + Monte Carlo)
-├── React State & Computed Data (useMemo chains)
-├── Batch Simulation Engine (formBoost + dark horse tracking)
-├── Team Journey Engine (per-team deep analysis + AI insights)
-├── Live Sync Engine (thesportsdb.com real-time results)
-└── JSX Rendering (8 tabs + KnockoutMatchCard component)
+2026.tsx                UI layer — tabs, rendering, React state
+src/engine/
+  rng.ts                mulberry32 seedable PRNG
+  data.ts               teams / groups / matches metadata
+  squads.ts             48-team squad rosters (single source of truth)
+  ratings.ts            club-tier → attack/defense ratings (normalized)
+  sim.ts                match engine: Dixon-Coles joint sampling + τ
+  tournament.ts         simulateTournament() — full-cup pure function
+  batch.ts              runBatchSimulation() — Monte Carlo aggregation
+  batch.worker.ts       off-main-thread batch runner
 ```
 
 ### 📊 Key Data
@@ -116,20 +119,21 @@ Single-file SPA (`2026.tsx`, ~2600 lines) with no external state management.
 | 📅 **北京时间日程表** | 72场小组赛完整赛程，星期标注，关注收藏，实时赛果同步 |
 | 🏆 **12组积分模拟** | 实时积分榜，支持手动输入比分或一键模拟，完整FIFA排名规则 |
 | 🌿 **32强树状模拟** | 9列左右半区布局，从32强到冠军一目了然 |
-| 📊 **AI 大数据统计预测** | 蒙特卡洛批量仿真（最高1000次），夺冠率/黑马榜/冷门统计 |
+| 📊 **AI 大数据统计预测** | 蒙特卡洛批量仿真（最高10000次·Web Worker后台），夺冠率带±95%置信区间/黑马榜/冷门统计 |
 | 🔮 **球队之旅** | 选择任意球队 → 深度推演世界杯之路，含小组分析、逐轮路径、AI洞察 |
 | 📋 **球队阵容** | 48队核心球员浏览，含位置、号码、俱乐部，按位置颜色分组展示 |
 | 🏟️ **场馆指南** | 16座场馆（美国11 + 加拿大2 + 墨西哥3）详细信息 |
 | ℹ️ **赛制规则** | 48队扩军新规、第三名横向排名晋级细则 |
 
-### 🔬 仿真引擎
+### 🔬 预测引擎（模块化·已测试 · `src/engine/`）
 
-- **比赛预测**: 基于 FIFA 排名差 → 期望进球(xG) → 泊松分布随机进球（Knuth 算法）
-- **主场优势**: 美国/加拿大/墨西哥在本土比赛获得额外加成
-- **区域加权**: 南美洲/欧洲球队获得实力校正
-- **formBoost 状态修正**: 基于近期表现和阵容质量的实力调整（如挪威+15、日本+10、厄瓜多尔+10）
-- **点球大战**: 排名加权概率决定淘汰赛平局胜负
-- **批量仿真**: 运行 N 次完整世界杯（最高1000次），追踪每支球队在每一轮的晋级/淘汰数据
+- **攻防分离（Phase 3）**: 每队 `attack`/`defense` 由阵容数据派生——球员质量以**俱乐部级别**代理（5=欧洲豪门→1=本土），按位置聚合（FW/MF→进攻、DF/GK→防守），全局归一化均值 1.0。挪威（哈兰德=精英前锋→攻强）与摩洛哥（哈基米=精英后卫→守强）踢出真实风格差异
+- **Dixon-Coles 模型（Phase 2）**: 以**联合得分分布 + τ 低分修正**替代独立双泊松——修正对 0-0/1-1 平局的低估、对 1-0/0-1 窄胜的高估。λ = 1.35 × attack_i / defense_j
+- **种子化可复现（Phase 1）**: mulberry32 PRNG → 同种子同结果；每次结果显示所用种子，预测后自动滚动新种子
+- **Web Worker 批量推演（Phase 1）**: 后台线程跑 **最高 10000 次**完整杯赛，主线程零卡顿
+- **Wilson score ±95% 置信区间** 覆盖所有夺冠/出线概率（非朴素 Wald）
+- **主场优势**（美/加/墨）与**区域加权**（南美/欧洲）
+- **45 个单测**（vitest）：PRNG、积分排序、FIFA R32 配对、Dixon-Coles 相关性、攻防派生
 
 ### ⭐ 关注收藏 & 实时赛果同步
 
@@ -168,17 +172,19 @@ npm run build
 
 ### 🏗️ 技术架构
 
-单文件 SPA（`2026.tsx`，约2600行），零外部状态管理库。
+React SPA + 已抽离、全测试的模块化预测引擎 `src/engine/`：
 
 ```
-2026.tsx
-├── 数据层（48支球队、~450名球员、12个小组、72场比赛、16座场馆）
-├── 仿真引擎（泊松分布 + 蒙特卡洛）
-├── React 状态与计算数据（useMemo 链式计算）
-├── 批量仿真引擎（formBoost + 黑马追踪）
-├── 球队之旅引擎（单队深度分析 + AI洞察生成）
-├── 实时赛果引擎（thesportsdb.com API同步）
-└── JSX 渲染（8个页签 + KnockoutMatchCard 组件）
+2026.tsx                UI 层 — 页签、渲染、React 状态
+src/engine/
+  rng.ts                mulberry32 种子化 PRNG
+  data.ts               球队/分组/赛程元数据
+  squads.ts             48 队阵容（单一数据源）
+  ratings.ts            俱乐部级别 → 攻防评分（归一化）
+  sim.ts                单场引擎：Dixon-Coles 联合采样 + τ
+  tournament.ts         simulateTournament() — 整届杯赛纯函数
+  batch.ts              runBatchSimulation() — 蒙特卡洛聚合
+  batch.worker.ts       后台线程批量推演
 ```
 
 ### 📊 核心数据
