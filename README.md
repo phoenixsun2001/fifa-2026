@@ -4,105 +4,40 @@
 
 ### 2026 美加墨世界杯互动模拟器
 
-**Poisson Distribution × Monte Carlo Simulation × React SPA**
+**Dixon-Coles × Monte Carlo × React SPA**
 
 [![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev)
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF?logo=vite)](https://vitejs.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-[English](#-english) · [中文](#-中文)
+[中文](#-中文) · [English](#-english)
 
 </div>
 
 ---
 
-## 🇬🇧 English
+<div align="center">
 
-### Overview
+### 📸 效果预览 · Preview
 
-An interactive simulator for the **2026 FIFA World Cup** (USA/Canada/Mexico), featuring a scientifically-grounded match prediction engine powered by **Poisson distribution** and **Monte Carlo simulation**.
+<img src="docs/screenshots/stats.png" width="860" alt="AI 大数据统计预测">
 
-### ✨ Features
+📊 **AI 大数据统计预测** — 蒙特卡洛万次推演（Web Worker）· 夺冠率/出线率带 ±95% 置信区间
 
-| Tab | Description |
-|-----|-------------|
-| 📅 **Schedule** | 72 group-stage matches with Beijing time (CST), venue & city info, ⭐ match favorites, 📡 live result sync |
-| 🏆 **Group Standings** | 12 groups × 4 teams, live standings with FIFA tiebreaker rules |
-| 🌿 **Knockout Bracket** | 9-column left/right half layout — R32 → R16 → QF → SF → Final → Champion |
-| 📊 **AI Statistics** | Monte Carlo batch simulation (up to 10,000 runs via Web Worker) — champion odds w/ ±95% CI, dark horse tracker, upset statistics |
-| 🔮 **Team Journey** | Pick any team → deep-dive simulation with group analysis, round-by-round path, and AI-generated insights |
-| 📋 **Squads** | 48-team roster browser — key players with position, shirt number, and club info |
-| 🏟️ **Venues** | 16 stadiums across USA (11), Canada (2), Mexico (3) |
-| ℹ️ **Format Rules** | 48-team expanded format, third-place ranking tiebreakers |
+<br><br>
 
-### 🔬 Prediction Engine (modular, tested — `src/engine/`)
+<img src="docs/screenshots/bracket.png" width="860" alt="32强树状模拟">
 
-- **Attack/Defense separation (Phase 3)**: Per-team `attack`/`defense` derived from squad data — player quality proxied by **club prestige tier** (5=elite UCL → 1=domestic), aggregated by position (FW/MF→attack, DF/GK→defense), normalized to mean 1.0. So Norway (Haaland, elite FW) plays attack-strong while Morocco (Hakimi, elite DF) plays defense-strong
-- **Dixon-Coles model (Phase 2)**: Replaces independent double-Poisson with a **joint score distribution + τ low-score correction** — fixes the underestimation of 0-0/1-1 draws and overestimation of 1-0/0-1. λ = 1.35 × attack_i / defense_j
-- **Seedable & reproducible (Phase 1)**: mulberry32 PRNG → same seed = same result; seed shown per run, auto-rolls after each prediction
-- **Web Worker batch (Phase 1)**: Up to **10,000 full tournaments** off the main thread, zero UI freeze
-- **Wilson score ±95% CI** on all champion/qualification odds (not naive Wald)
-- **Home advantage** (USA/CAN/MEX) and **region weighting** (South America/Europe)
-- **45 unit tests** (vitest): PRNG, standings, FIFA R32 pairing, Dixon-Coles correlation, attack/defense derivation
+🌿 **32强树状模拟** — R32 → R16 → QF → SF → 冠军
 
-### ⭐ Match Favorites & Live Sync
+<br><br>
 
-- **Follow matches**: Star any match to add it to your watchlist, filter to show only followed matches
-- **Persistent**: Follow list saved to localStorage, survives page refresh
-- **Live result sync**: One-click sync from thesportsdb.com API to pull real match scores (CORS-friendly, no API key required)
+<img src="docs/screenshots/groups.png" width="860" alt="12组积分模拟">
 
-### 📋 Squad Browser
+🏆 **12组积分模拟** — 实时积分榜 + FIFA 排名规则
 
-- **48 teams** with 8–12 key players each (~450 total)
-- Player info: name, position (GK/DF/MF/FW), shirt number, current club
-- Color-coded position groups: Goalkeeper (yellow) / Defender (blue) / Midfielder (green) / Forward (red)
-- Data sourced from FIFA.com, ESPN, thesportsdb, Wikipedia
-
-### 🔮 Team Journey Deep Dive
-
-1. Runs Monte Carlo simulation tracking the selected team across every round
-2. Analyzes win rate and typical score against each group opponent
-3. Shows round-by-round reach rate, top 3 likely opponents, and win probability
-4. Auto-generates **4–5 AI insights** (positive 🟢 / risk 🔴 / key moments 🟡)
-
-### 🚀 Quick Start
-
-```bash
-# Install dependencies
-npm install
-
-# Start dev server
-npm run dev
-
-# Production build
-npm run build
-```
-
-### 🏗️ Architecture
-
-React SPA with a modular, fully-tested prediction engine extracted into `src/engine/`:
-
-```
-2026.tsx                UI layer — tabs, rendering, React state
-src/engine/
-  rng.ts                mulberry32 seedable PRNG
-  data.ts               teams / groups / matches metadata
-  squads.ts             48-team squad rosters (single source of truth)
-  ratings.ts            club-tier → attack/defense ratings (normalized)
-  sim.ts                match engine: Dixon-Coles joint sampling + τ
-  tournament.ts         simulateTournament() — full-cup pure function
-  batch.ts              runBatchSimulation() — Monte Carlo aggregation
-  batch.worker.ts       off-main-thread batch runner
-```
-
-### 📊 Key Data
-
-- **48 teams** with FIFA ranking, region, flag, formBoost, and squad rosters
-- **~450 players** across 48 teams with position, number, and club
-- **72 group-stage matches** across 12 groups (June 12–27, 2026)
-- **32-team knockout** following official FIFA 2026 cross-group pairing
-- **16 venues** across 3 host nations
+</div>
 
 ---
 
@@ -110,7 +45,7 @@ src/engine/
 
 ### 项目简介
 
-**2026 美加墨世界杯互动模拟器**——基于 **泊松分布** 与 **蒙特卡洛仿真** 的科学足球预测引擎，以单文件 React SPA 实现完整的世界杯模拟体验。
+**2026 美加墨世界杯互动模拟器**——基于 **Dixon-Coles 模型** 与 **蒙特卡洛仿真** 的科学足球预测引擎，以 React SPA 实现完整的世界杯模拟体验。预测引擎已模块化抽离至 `src/engine/`，含 45 个单测。
 
 ### ✨ 功能亮点
 
@@ -168,6 +103,9 @@ npm run dev
 
 # 生产构建
 npm run build
+
+# 运行引擎测试（45 个）
+npm test
 ```
 
 ### 🏗️ 技术架构
@@ -197,12 +135,105 @@ src/engine/
 
 ### 🛠️ 技术栈
 
-| Technology | Purpose |
+| 技术 | 用途 |
 |-----------|---------|
-| React 18 | UI framework |
-| Vite 5 | Build tool & dev server |
-| TypeScript | Type system (strict: false for single-file compatibility) |
-| Tailwind CSS 3 | Utility-first styling, dark theme (slate-950) |
+| React 18 | UI 框架 |
+| Vite 5 | 构建工具 & 开发服务器 |
+| TypeScript | 类型系统 |
+| Tailwind CSS 3 | 原子化样式，深色主题（slate-950）|
+| vitest | 引擎单测（45 个）|
+
+---
+
+## 🇬🇧 English
+
+### Overview
+
+An interactive simulator for the **2026 FIFA World Cup** (USA/Canada/Mexico), featuring a scientifically-grounded match prediction engine powered by the **Dixon-Coles model** and **Monte Carlo simulation**. The prediction engine is modularized under `src/engine/` with 45 unit tests.
+
+### ✨ Features
+
+| Tab | Description |
+|-----|-------------|
+| 📅 **Schedule** | 72 group-stage matches with Beijing time (CST), venue & city info, ⭐ match favorites, 📡 live result sync |
+| 🏆 **Group Standings** | 12 groups × 4 teams, live standings with FIFA tiebreaker rules |
+| 🌿 **Knockout Bracket** | 9-column left/right half layout — R32 → R16 → QF → SF → Final → Champion |
+| 📊 **AI Statistics** | Monte Carlo batch simulation (up to 10,000 runs via Web Worker) — champion odds w/ ±95% CI, dark horse tracker, upset statistics |
+| 🔮 **Team Journey** | Pick any team → deep-dive simulation with group analysis, round-by-round path, and AI-generated insights |
+| 📋 **Squads** | 48-team roster browser — key players with position, shirt number, and club info |
+| 🏟️ **Venues** | 16 stadiums across USA (11), Canada (2), Mexico (3) |
+| ℹ️ **Format Rules** | 48-team expanded format, third-place ranking tiebreakers |
+
+### 🔬 Prediction Engine (modular, tested — `src/engine/`)
+
+- **Attack/Defense separation (Phase 3)**: Per-team `attack`/`defense` derived from squad data — player quality proxied by **club prestige tier** (5=elite UCL → 1=domestic), aggregated by position (FW/MF→attack, DF/GK→defense), normalized to mean 1.0. So Norway (Haaland, elite FW) plays attack-strong while Morocco (Hakimi, elite DF) plays defense-strong
+- **Dixon-Coles model (Phase 2)**: Replaces independent double-Poisson with a **joint score distribution + τ low-score correction** — fixes the underestimation of 0-0/1-1 draws and overestimation of 1-0/0-1. λ = 1.35 × attack_i / defense_j
+- **Seedable & reproducible (Phase 1)**: mulberry32 PRNG → same seed = same result; seed shown per run, auto-rolls after each prediction
+- **Web Worker batch (Phase 1)**: Up to **10,000 full tournaments** off the main thread, zero UI freeze
+- **Wilson score ±95% CI** on all champion/qualification odds (not naive Wald)
+- **Home advantage** (USA/CAN/MEX) and **region weighting** (South America/Europe)
+- **45 unit tests** (vitest): PRNG, standings, FIFA R32 pairing, Dixon-Coles correlation, attack/defense derivation
+
+### ⭐ Match Favorites & Live Sync
+
+- **Follow matches**: Star any match to add it to your watchlist, filter to show only followed matches
+- **Persistent**: Follow list saved to localStorage, survives page refresh
+- **Live result sync**: One-click sync from thesportsdb.com API to pull real match scores (CORS-friendly, no API key required)
+
+### 📋 Squad Browser
+
+- **48 teams** with 8–12 key players each (~450 total)
+- Player info: name, position (GK/DF/MF/FW), shirt number, current club
+- Color-coded position groups: Goalkeeper (yellow) / Defender (blue) / Midfielder (green) / Forward (red)
+- Data sourced from FIFA.com, ESPN, thesportsdb, Wikipedia
+
+### 🔮 Team Journey Deep Dive
+
+1. Runs Monte Carlo simulation tracking the selected team across every round
+2. Analyzes win rate and typical score against each group opponent
+3. Shows round-by-round reach rate, top 3 likely opponents, and win probability
+4. Auto-generates **4–5 AI insights** (positive 🟢 / risk 🔴 / key moments 🟡)
+
+### 🚀 Quick Start
+
+```bash
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+
+# Production build
+npm run build
+
+# Run engine tests (45)
+npm test
+```
+
+### 🏗️ Architecture
+
+React SPA with a modular, fully-tested prediction engine extracted into `src/engine/`:
+
+```
+2026.tsx                UI layer — tabs, rendering, React state
+src/engine/
+  rng.ts                mulberry32 seedable PRNG
+  data.ts               teams / groups / matches metadata
+  squads.ts             48-team squad rosters (single source of truth)
+  ratings.ts            club-tier → attack/defense ratings (normalized)
+  sim.ts                match engine: Dixon-Coles joint sampling + τ
+  tournament.ts         simulateTournament() — full-cup pure function
+  batch.ts              runBatchSimulation() — Monte Carlo aggregation
+  batch.worker.ts       off-main-thread batch runner
+```
+
+### 📊 Key Data
+
+- **48 teams** with FIFA ranking, region, flag, formBoost, and squad rosters
+- **~450 players** across 48 teams with position, number, and club
+- **72 group-stage matches** across 12 groups (June 12–27, 2026)
+- **32-team knockout** following official FIFA 2026 cross-group pairing
+- **16 venues** across 3 host nations
 
 ---
 
