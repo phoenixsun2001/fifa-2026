@@ -830,9 +830,10 @@ export default function App() {
     setSyncMessage('🔄 正在从数据源获取赛果...');
 
     try {
-      // 使用 thesportsdb.com 免费 CORS 友好 API
-      // World Cup league id: 4429 (FIFA World Cup)
-      const response = await fetch('https://www.thesportsdb.com/api/v1/json/3/eventsseason.php?id=4429&s=2026');
+      // 使用 ESPN 免费 CORS 友好 API
+      // thesportsdb 的世界杯数据覆盖不全（整届只有 5 场），改用 ESPN 的 fifa.world 赛程接口。
+      // 2026 世界杯赛期 2026-06-11 ~ 2026-07-19，按整个赛期取数，每次同步自动纳入所有已完赛。
+      const response = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard?dates=20260611-20260719');
       if (!response.ok) throw new Error(`API 返回 ${response.status}`);
 
       const data = await response.json();
@@ -844,23 +845,24 @@ export default function App() {
         return;
       }
 
-      // 构建 thesportsdb 队名 → 我们队名的映射（模糊匹配）
+      // 队名归一化：小写 + 去变音符号(Türkiye→turkiye, Curaçao→curacao) + 去空格/连字符/撇号
+      const norm = (s) =>
+        (s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[\s\-']/g, '');
+
+      // 构建 ESPN 队名 → 我们队名的映射（模糊匹配）
       const nameMap = {};
       Object.keys(teamMetadata).forEach(name => {
-        // 去掉空格、转小写，方便匹配
-        const key = name.toLowerCase().replace(/\s/g, '');
-        nameMap[key] = name;
-        // 也加入英文映射
+        nameMap[norm(name)] = name;
         const code = teamMetadata[name].code?.toLowerCase() || '';
         if (code) nameMap[code] = name;
       });
-      // 额外的英文→中文映射（含连字符/特殊字符变体）
+      // 额外的英文→中文映射（含 ESPN 实际拼写变体：Czechia、Türkiye 等）
       const extraNames = {
-        'mexico': '墨西哥', 'southafrica': '南非', 'southkorea': '韩国', 'czechrepublic': '捷克',
+        'mexico': '墨西哥', 'southafrica': '南非', 'southkorea': '韩国', 'czechrepublic': '捷克', 'czechia': '捷克',
         'canada': '加拿大', 'bosniaandherzegovina': '波黑', 'bosnia-herzegovina': '波黑',
         'qatar': '卡塔尔', 'switzerland': '瑞士',
         'brazil': '巴西', 'morocco': '摩洛哥', 'haiti': '海地', 'scotland': '苏格兰',
-        'usa': '美国', 'unitedstates': '美国', 'paraguay': '巴拉圭', 'australia': '澳大利亚', 'turkey': '土耳其',
+        'usa': '美国', 'unitedstates': '美国', 'paraguay': '巴拉圭', 'australia': '澳大利亚', 'turkey': '土耳其', 'turkiye': '土耳其',
         'germany': '德国', 'curacao': '库拉索', 'cotedivoire': '科特迪瓦', 'ivorycoast': '科特迪瓦',
         'ecuador': '厄瓜多尔',
         'netherlands': '荷兰', 'japan': '日本', 'sweden': '瑞典', 'tunisia': '突尼斯',
@@ -872,47 +874,58 @@ export default function App() {
         'uzbekistan': '乌兹别克斯坦', 'colombia': '哥伦比亚',
         'england': '英格兰', 'croatia': '克罗地亚', 'ghana': '加纳', 'panama': '巴拿马',
       };
-      // 注册时与查询采用相同的归一化（去空格+连字符），否则带连字符的 key 永远命中不了
-      Object.keys(extraNames).forEach(k => { nameMap[k.toLowerCase().replace(/[\s-]/g, '')] = extraNames[k]; });
+      // 注册时与查询采用相同的归一化，否则带连字符/变音符号的 key 永远命中不了
+      Object.keys(extraNames).forEach(k => { nameMap[norm(k)] = extraNames[k]; });
 
       // 解析赛果并匹配到我们的比赛
       let updatedCount = 0;
-      const matchMap = {};
-      matches.forEach(m => { matchMap[m.id] = m; });
+      const finishedEvents = [];
+      const unmapped = new Set();
 
       events.forEach(evt => {
-        if (!evt.intHomeScore || !evt.intAwayScore) return; // 未完成的比赛
-        const homeKey = (evt.strHomeTeam || '').toLowerCase().replace(/[\s-]/g, '');
-        const awayKey = (evt.strAwayTeam || '').toLowerCase().replace(/[\s-]/g, '');
-        const homeName = nameMap[homeKey];
-        const awayName = nameMap[awayKey];
-        if (!homeName || !awayName) return;
+        if (!evt?.status?.type?.completed) return; // 未完成/未开始的比赛
+        finishedEvents.push(evt);
 
-        // 在我们的比赛列表中找到匹配
+        // ESPN 比赛双方在 competitions[0].competitors，需按 homeAway 区分主客
+        const competitors = evt.competitions?.[0]?.competitors || [];
+        let home = null, away = null;
+        competitors.forEach(c => { (c.homeAway === 'home' ? home = c : away = c); });
+        const homeName = nameMap[norm(home?.team?.displayName || '')];
+        const awayName = nameMap[norm(away?.team?.displayName || '')];
+        if (!homeName) unmapped.add(home?.team?.displayName || '(home?)');
+        if (!awayName) unmapped.add(away?.team?.displayName || '(away?)');
+        const homeScore = home?.score;
+        const awayScore = away?.score;
+        if (homeScore == null || awayScore == null || !homeName || !awayName) return;
+
+        // 在我们的比赛列表中找到匹配（主客顺序可能与 ESPN 不一致）
         const found = matches.find(m =>
           (m.home === homeName && m.away === awayName) ||
           (m.away === homeName && m.home === awayName)
         );
         if (found) {
-          const homeScore = found.home === homeName ? evt.intHomeScore : evt.intAwayScore;
-          const awayScore = found.away === awayName ? evt.intAwayScore : evt.intHomeScore;
-          if (found.homeScore !== String(homeScore) || found.awayScore !== String(awayScore)) {
-            setMatches(prev => prev.map(m => {
-              if (m.id === found.id) {
-                return { ...m, homeScore: String(homeScore), awayScore: String(awayScore), locked: true };
-              }
-              return m;
-            }));
+          const ourHomeIsEspnHome = found.home === homeName;
+          const ourHomeScore = ourHomeIsEspnHome ? homeScore : awayScore;
+          const ourAwayScore = ourHomeIsEspnHome ? awayScore : homeScore;
+          if (found.homeScore !== String(ourHomeScore) || found.awayScore !== String(ourAwayScore)) {
+            setMatches(prev => prev.map(m =>
+              m.id === found.id
+                ? { ...m, homeScore: String(ourHomeScore), awayScore: String(ourAwayScore), locked: true }
+                : m
+            ));
             updatedCount++;
           }
         }
       });
 
+      if (unmapped.size > 0) {
+        console.warn('[同步] 以下队名未能映射，已跳过：', [...unmapped].join(', '));
+      }
+
       if (updatedCount > 0) {
-        setSyncMessage(`✅ 同步成功！已更新 ${updatedCount} 场比赛的真实赛果`);
+        setSyncMessage(`✅ 同步成功！已更新 ${updatedCount} 场比赛的真实赛果${finishedEvents.length > updatedCount ? `（共 ${finishedEvents.length} 场已完赛）` : ''}`);
       } else {
         // 检查是否有已完成的比赛但分数已经是最新的
-        const finishedEvents = events.filter(e => e.intHomeScore && e.intAwayScore);
         if (finishedEvents.length > 0) {
           setSyncMessage(`✅ 数据已是最新（${finishedEvents.length} 场已完赛）`);
         } else {
