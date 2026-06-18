@@ -870,7 +870,7 @@ export default function App() {
         'spain': '西班牙', 'capeverde': '佛得角', 'saudiarabia': '沙特阿拉伯', 'uruguay': '乌拉圭',
         'france': '法国', 'senegal': '塞内加尔', 'norway': '挪威', 'iraq': '伊拉克',
         'argentina': '阿根廷', 'algeria': '阿尔及利亚', 'austria': '奥地利', 'jordan': '约旦',
-        'portugal': '葡萄牙', 'drcongo': '民主刚果', 'democraticrepublicofthecongo': '民主刚果',
+        'portugal': '葡萄牙', 'drcongo': '民主刚果', 'congodr': '民主刚果', 'democraticrepublicofthecongo': '民主刚果',
         'uzbekistan': '乌兹别克斯坦', 'colombia': '哥伦比亚',
         'england': '英格兰', 'croatia': '克罗地亚', 'ghana': '加纳', 'panama': '巴拿马',
       };
