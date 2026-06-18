@@ -940,6 +940,24 @@ export default function App() {
     setIsSyncing(false);
   };
 
+  // 锁定当前所有已填比分的比赛 → 作为真实赛果用于后续推演（单次/批量/球队之旅均尊重）
+  const handleLockAllFilled = () => {
+    const toLock = matches.filter(m => m.homeScore !== '' && m.awayScore !== '' && !m.locked);
+    if (toLock.length === 0) {
+      const filled = matches.filter(m => m.homeScore !== '' && m.awayScore !== '');
+      setSyncMessage(filled.length > 0
+        ? `ℹ️ 已填比分的 ${filled.length} 场比赛均已锁定`
+        : 'ℹ️ 暂无已填比分的比赛可锁定');
+      return;
+    }
+    setMatches(prev => prev.map(m =>
+      (m.homeScore !== '' && m.awayScore !== '' && !m.locked)
+        ? { ...m, locked: true }
+        : m
+    ));
+    setSyncMessage(`🔒 已锁定 ${toLock.length} 场已填比分 — 将作为真实赛果用于后续推演`);
+  };
+
   // 球队之旅模拟
   const [journeyTeam, setJourneyTeam] = useState('');
   const [journeyResult, setJourneyResult] = useState(null);
@@ -1251,6 +1269,14 @@ export default function App() {
       // 最高成就
       let bestFinishIdx = -1; // 0=r32, 1=r16, 2=qf, 3=sf, 4=final, 5=champ
 
+      // 锁定赛果查找表：锁定的真实小组赛比分不参与重新模拟（与单次/批量推演保持一致）
+      const lockedMap = {};
+      matches.forEach(m => {
+        if (m.locked && m.homeScore !== '' && m.awayScore !== '') {
+          lockedMap[m.id] = { homeScore: parseInt(m.homeScore, 10), awayScore: parseInt(m.awayScore, 10) };
+        }
+      });
+
       for (let run = 0; run < N; run++) {
         const rng = createRng(Math.floor(Math.random() * 1e9) + run);
         // A. 模拟小组赛
@@ -1262,7 +1288,8 @@ export default function App() {
         });
 
         initialMatches.forEach(m => {
-          const res = simulateMatchRealistic(rng, m.home, m.away);
+          const lk = lockedMap[m.id];
+          const res = lk ? { homeScore: lk.homeScore, awayScore: lk.awayScore } : simulateMatchRealistic(rng, m.home, m.away);
           const pool = gp[m.group];
           const h = pool.find(t => t.name === m.home);
           const a = pool.find(t => t.name === m.away);
@@ -2325,9 +2352,17 @@ export default function App() {
                       ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-not-allowed'
                       : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500 hover:text-slate-950'
                   }`}
-                  title="从 thesportsdb.com 获取真实比赛结果"
+                  title="从 ESPN 获取真实比赛结果"
                 >
                   {isSyncing ? '🔄 同步中...' : '📡 同步真实赛果'}
+                </button>
+
+                <button
+                  onClick={handleLockAllFilled}
+                  className="px-3 py-1 rounded-lg text-xs font-bold transition-all border bg-teal-500/10 text-teal-400 border-teal-500/30 hover:bg-teal-500 hover:text-slate-950"
+                  title="把当前所有已填比分的比赛锁定为真实赛果，后续模拟以它们为准"
+                >
+                  🔒 锁定所有已填比分
                 </button>
               </div>
 
